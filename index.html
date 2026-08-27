@@ -108,6 +108,7 @@ tr:hover td{background:#f8fafc}
     <div class="header-right">
       <div id="hdr-total" style="font-size:14px;font-weight:700;color:#fff"></div>
       <div id="hdr-today" style="font-size:12px"></div>
+      <button id="sync-btn" onclick="doSync('pull')" class="btn btn-secondary btn-sm" style="font-size:11px;padding:4px 10px">☁ Sync</button>
     </div>
   </div>
 </div>
@@ -218,6 +219,8 @@ const STORAGE = {
   ALLY2:'pi2_ally2',
   ALLY3:'pi2_ally3',
   INTEL:'pi2_intel',
+  JSONBIN_KEY:'pi2_jb_key',
+  JSONBIN_BIN:'pi2_jb_bin',
   LOTS:    'pi2_lots',
   WATCHLIST:'pi2_watchlist',
   ROI:     'pi2_roi',
@@ -274,6 +277,83 @@ const getWatchlist  = () => getJSON(STORAGE.WATCHLIST, []);
 const saveWatchlist = v  => setJSON(STORAGE.WATCHLIST, v);
 const getSettings   = () => getJSON(STORAGE.SETTINGS, {finnhubKey:'',claudeMode:true});
 const saveSettings  = v  => setJSON(STORAGE.SETTINGS, v);
+
+// ── JSONBin sync ───────────────────────────────────────────────────────────
+function getJBConfig() {
+  return { key: ls(STORAGE.JSONBIN_KEY)||'', bin: ls(STORAGE.JSONBIN_BIN)||'' };
+}
+
+async function syncPush() {
+  const {key, bin} = getJBConfig();
+  if (!key || !bin) return false;
+  const payload = {
+    holdings, 
+    acct:    getAccts(),
+    roi:     getROI(),
+    lots:    getLots(),
+    watchlist: getWatchlist(),
+    quant:   getQuant(),
+    intel:   getIntel(),
+    sa_raw:  ls(STORAGE.SA_RAW)||'',
+    schwab_raw: ls(STORAGE.SCHWAB_RAW)||'',
+    ally1:   ls(STORAGE.ALLY1)||'',
+    ally2:   ls(STORAGE.ALLY2)||'',
+    ally3:   ls(STORAGE.ALLY3)||'',
+    lastSync: new Date().toISOString(),
+  };
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${bin}`, {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', 'X-Master-Key': key },
+      body: JSON.stringify(payload)
+    });
+    return r.ok;
+  } catch(e) { return false; }
+}
+
+async function syncPull() {
+  const {key, bin} = getJBConfig();
+  if (!key || !bin) return false;
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, {
+      headers: { 'X-Master-Key': key }
+    });
+    if (!r.ok) return false;
+    const d = await r.json();
+    const data = d.record;
+    if (!data) return false;
+    // Restore all data
+    if (data.holdings?.length)  { holdings = data.holdings; setJSON(STORAGE.HOLDINGS, holdings); }
+    if (data.acct)               setJSON(STORAGE.ACCT,     data.acct);
+    if (data.roi)                setJSON(STORAGE.ROI,      data.roi);
+    if (data.lots)               setJSON(STORAGE.LOTS,     data.lots);
+    if (data.watchlist)          setJSON(STORAGE.WATCHLIST,data.watchlist);
+    if (data.quant)              setJSON(STORAGE.QUANT,    data.quant);
+    if (data.intel)              setJSON(STORAGE.INTEL,    data.intel);
+    if (data.sa_raw)             ls(STORAGE.SA_RAW,        data.sa_raw);
+    if (data.schwab_raw)         ls(STORAGE.SCHWAB_RAW,    data.schwab_raw);
+    if (data.ally1)              ls(STORAGE.ALLY1,         data.ally1);
+    if (data.ally2)              ls(STORAGE.ALLY2,         data.ally2);
+    if (data.ally3)              ls(STORAGE.ALLY3,         data.ally3);
+    return data.lastSync||true;
+  } catch(e) { return false; }
+}
+
+window._syncing = false;
+window.doSync = async (direction='pull') => {
+  if (window._syncing) return;
+  window._syncing = true;
+  const btn = document.getElementById('sync-btn');
+  if (btn) { btn.innerHTML = '↻ Syncing...'; btn.disabled = true; }
+  let ok = false;
+  if (direction === 'push') ok = await syncPush();
+  else { ok = await syncPull(); if (ok) render(); }
+  if (btn) { btn.innerHTML = ok ? '✅ Synced' : '❌ Failed'; btn.disabled = false; }
+  setTimeout(() => { if (btn) btn.innerHTML = '☁ Sync'; }, 3000);
+  window._syncing = false;
+  return ok;
+};
+
 const getQuant  = () => getJSON(STORAGE.QUANT, {});
 const saveQuant = v  => setJSON(STORAGE.QUANT, v);
 const getIntel  = () => getJSON(STORAGE.INTEL, INTEL_SEED);
@@ -1817,10 +1897,10 @@ window.runImport = () => {
   }
 
   if (imported.length) {
-    // Force re-render with current in-memory holdings
     tab = 'overview';
     toast('✅ Imported: '+imported.join(', '));
     render();
+    syncPush().then(ok => { if(ok) toast('☁ Synced to cloud'); });
   } else {
     // Show what was detected
     const saLen = saRaw.trim().length;
@@ -1970,7 +2050,23 @@ function renderSettings(app) {
           </label>
           <div style="font-size:11px;color:#94a3b8;margin-top:4px">Adds AI narrative to each recommendation card. Uses Claude Sonnet.</div>
         </div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">JSONBin Bin ID (free at jsonbin.io)</label>
+          <input id="set-jb-bin" value="${ls(STORAGE.JSONBIN_BIN)||''}" placeholder="e.g. 64abc123def456..." style="flex:1">
+        </div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">JSONBin API Key</label>
+          <div style="display:flex;gap:8px">
+            <input id="set-jb-key" type="password" value="${ls(STORAGE.JSONBIN_KEY)||''}" placeholder="Your JSONBin master key..." style="flex:1">
+            <button class="btn btn-secondary btn-sm" onclick="testJSONBin()">Test</button>
+          </div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:4px">Syncs all data across phone, tablet, desktop automatically.</div>
+        </div>
         <button class="btn btn-primary" onclick="saveSettingsForm()">Save Settings</button>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-secondary btn-sm" onclick="doSync('pull')">☁ Pull from cloud</button>
+          <button class="btn btn-secondary btn-sm" onclick="doSync('push')">☁ Push to cloud</button>
+        </div>
         <div id="set-result" style="font-size:12px;color:#16a34a;margin-top:8px"></div>
       </div>
       <div class="card">
@@ -1990,8 +2086,32 @@ window.saveSettingsForm = () => {
     claudeMode: document.getElementById('set-claude')?.checked||false,
   };
   saveSettings(s);
+  const jbKey = document.getElementById('set-jb-key')?.value||'';
+  const jbBin = document.getElementById('set-jb-bin')?.value||'';
+  if (jbKey) ls(STORAGE.JSONBIN_KEY, jbKey);
+  if (jbBin) ls(STORAGE.JSONBIN_BIN, jbBin);
   document.getElementById('set-result').textContent = '✅ Saved';
   toast('Settings saved');
+};
+
+window.testJSONBin = async () => {
+  const key = document.getElementById('set-jb-key')?.value||'';
+  const bin = document.getElementById('set-jb-bin')?.value||'';
+  const el  = document.getElementById('set-result');
+  if (!key || !bin) { if(el) { el.textContent='Enter both Bin ID and API key'; el.style.color='#dc2626'; } return; }
+  if(el) { el.textContent='Testing...'; el.style.color='#64748b'; }
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, {
+      headers: { 'X-Master-Key': key }
+    });
+    if (r.ok) {
+      if(el) { el.textContent='✅ Connected — JSONBin sync ready'; el.style.color='#16a34a'; }
+    } else {
+      if(el) { el.textContent='❌ Failed — check Bin ID and API key'; el.style.color='#dc2626'; }
+    }
+  } catch(e) {
+    if(el) { el.textContent='❌ Error: '+e.message; el.style.color='#dc2626'; }
+  }
 };
 
 window.testFinnhub = async () => {
@@ -2121,6 +2241,11 @@ window.clearSplit=(ticker)=>{
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 (()=>{
+  // Auto-pull from JSONBin if configured
+  const {key, bin} = getJBConfig();
+  if (key && bin) {
+    syncPull().then(ok => { if(ok) render(); });
+  }
   // Load persisted holdings
   const saved = getJSON(STORAGE.HOLDINGS, []);
   if (saved.length) holdings = saved;
