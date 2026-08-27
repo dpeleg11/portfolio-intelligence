@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio Intelligence 2.0</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh}
+.header{background:#0f172a;color:#fff;padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:0;height:52px}
+.logo{font-size:15px;font-weight:800;color:#fff;margin-right:32px;white-space:nowrap}
+.logo span{color:#3b82f6}
+.nav{display:flex;height:100%}
+.nav-btn{background:none;border:none;color:#94a3b8;padding:0 16px;cursor:pointer;font-size:13px;font-weight:500;height:100%;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.nav-btn:hover{color:#fff}
+.nav-btn.active{color:#fff;border-bottom-color:#3b82f6}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.main{max-width:1400px;margin:0 auto;padding:20px 24px}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #e2e8f0;margin-bottom:14px}
+.card-title{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{background:#fff;border-radius:10px;padding:14px 16px;border:1px solid #e2e8f0}
+.kpi .label{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.kpi .value{font-size:24px;font-weight:800;line-height:1}
+.kpi .sub{font-size:11px;color:#94a3b8;margin-top:4px}
+.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+.btn-primary{background:#2563eb;color:#fff}
+.btn-primary:hover{background:#1d4ed8}
+.btn-secondary{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+.btn-secondary:hover{background:#e2e8f0}
+.btn-success{background:#16a34a;color:#fff}
+.btn-danger{background:#dc2626;color:#fff}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+textarea{width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:monospace;resize:vertical;background:#f8fafc;color:#0f172a}
+textarea:focus{outline:none;border-color:#3b82f6;background:#fff}
+input,select{padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;background:#fff;color:#0f172a;width:100%}
+input:focus,select:focus{outline:none;border-color:#3b82f6}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 10px;text-align:right;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e2e8f0;white-space:nowrap;cursor:pointer}
+th:first-child{text-align:left}
+th:hover{color:#2563eb}
+td{padding:7px 10px;text-align:right;border-bottom:1px solid #f1f5f9}
+td:first-child{text-align:left}
+tr:hover td{background:#f8fafc}
+.twrap{overflow-x:auto;border-radius:8px;border:1px solid #e2e8f0}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.tag-buy{background:#dcfce7;color:#16a34a}
+.tag-hold{background:#fef9c3;color:#a16207}
+.tag-watch{background:#eff6ff;color:#2563eb}
+.tag-trim{background:#fee2e2;color:#dc2626}
+.tag-strong{background:#16a34a;color:#fff}
+.signal-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f8fafc}
+.row:last-child{border-bottom:none}
+.muted{color:#94a3b8}
+.err{color:#dc2626;font-size:12px;margin-top:6px}
+.green{color:#16a34a}
+.red{color:#dc2626}
+.blue{color:#2563eb}
+.pill{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;display:inline-block}
+/* Watchlist ticker cards */
+.ticker-card{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:12px;transition:box-shadow .15s}
+.ticker-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+/* Recommendation cards */
+.rec-card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:16px;border-left:4px solid #2563eb}
+.rec-card.strong-buy{border-left-color:#16a34a}
+.rec-card.buy{border-left-color:#3b82f6}
+.rec-card.hold{border-left-color:#f59e0b}
+.rec-card.watch{border-left-color:#f59e0b}
+.rec-card.trim{border-left-color:#dc2626}
+/* Import page */
+.import-zone{border:2px dashed #e2e8f0;border-radius:12px;padding:24px;text-align:center;background:#f8fafc;transition:all .15s}
+.import-zone:hover{border-color:#3b82f6;background:#eff6ff}
+/* Signal bars */
+.signal-bar{height:6px;border-radius:3px;background:#e2e8f0;overflow:hidden;margin-top:4px}
+.signal-fill{height:100%;border-radius:3px;transition:width .3s}
+/* Loading */
+.spinner{width:16px;height:16px;border:2px solid #e2e8f0;border-top-color:#3b82f6;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{display:flex;align-items:center;gap:8px;color:#64748b;font-size:13px;padding:20px}
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:#0f172a;color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;max-width:400px;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:slideUp .2s ease}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+/* Empty state */
+.empty{text-align:center;padding:48px 24px;color:#94a3b8}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:700;color:#475569;margin-bottom:6px}
+
+/* v1 overview classes */
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.kl{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:5px}
+.kv{font-size:22px;font-weight:700;line-height:1}
+.ks{font-size:11px;margin-top:3px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.sl{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:8px}
+.muted{color:#64748b}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">Portfolio <span>2.0</span></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="header-right">
+      <div id="hdr-total" style="font-size:14px;font-weight:700;color:#fff"></div>
+      <div id="hdr-today" style="font-size:12px"></div>
+    </div>
+  </div>
+</div>
+<div class="main" id="app"></div>
+
+<script>
+'use strict';
+
+// ── Portfolio Intelligence — seeded from session history ─────────────────
+const INTEL_SEED = {
+  MRVL: {
+    action: 'pass',
+    reason: 'Exited — thesis played out, upside exhausted at exit. Re-entry only on new catalyst (custom silicon design win, post-earnings dip with fresh upside >40%).',
+    exitDate: '2026-08',
+    tags: ['exited','thesis-complete'],
+  },
+  CRDO: {
+    action: 'pass',
+    reason: 'Exited — insider selling + customer concentration risk. Do not re-enter.',
+    exitDate: '2026',
+    tags: ['exited','insider-selling'],
+  },
+  RKLB: {
+    action: 'pass',
+    reason: 'Exited — deteriorating thesis + insider selling. Pass.',
+    exitDate: '2026',
+    tags: ['exited','thesis-broken'],
+  },
+  INTC: {
+    action: 'pass',
+    reason: 'Tax loss harvest exit. Structural bear — AMD and TSMC have taken share permanently. Do not re-enter.',
+    exitDate: '2026',
+    tags: ['exited','tax-harvest','structural-bear'],
+  },
+  VRT: {
+    action: 'watch',
+    reason: 'Trimmed after strong run. Re-entry on significant pullback only (>20% from highs). AI power infrastructure thesis intact.',
+    tags: ['trimmed','watch-for-reentry'],
+  },
+  NIO: {
+    action: 'pass',
+    reason: 'Evaluated and declined — too speculative for portfolio thesis.',
+    tags: ['evaluated','declined'],
+  },
+  IONQ: {
+    action: 'pass',
+    reason: 'Deferred indefinitely — quantum computing too early stage.',
+    tags: ['evaluated','deferred'],
+  },
+  DELL: {
+    action: 'watch',
+    reason: 'Watching for Sep 1 post-earnings dip entry. TipRanks cool on DELL — negative equity, insider selling. Only buy on dip after earnings beat.',
+    tags: ['watch-for-entry','earnings-Sep1'],
+  },
+  GLD: {
+    action: 'hold',
+    reason: 'Thesis upgraded Aug 2026 — Bessent bond buyback program = structural fiscal debasement. Hold all 122 shares. Add on pullbacks.',
+    tags: ['thesis-upgrade','structural-hold'],
+  },
+  AVGO: {
+    action: 'hold',
+    reason: 'Trimmed 41sh Aug 14 for tax harvest at $391.36. Core position hold. Strong Buy, Smart Score 8, 43% upside. Add on dips.',
+    tags: ['core-position','partially-trimmed'],
+  },
+  NVDA: {
+    action: 'hold',
+    reason: 'Largest holding ~9.5% of book. Q2 FY27 beat — $96.22B revenue, $108B Q3 guide. Post-earnings dip = add opportunity. 532sh across Schwab/Ally.',
+    tags: ['core-position','bellwether'],
+  },
+  TTMI: {
+    action: 'hold',
+    reason: 'New position Aug 2026 at $110. SA Quant 4.1, 95% upside to $214. AI infrastructure PCB play. Next earnings Nov 5.',
+    tags: ['new-position','high-conviction'],
+  },
+  SNDK: {
+    action: 'hold',
+    reason: 'HBM memory play. Investor Day confirmed. 20sh held. Q4 revenue $8.97B +51% QoQ. Multi-year supply agreements. $2,126 avg target.',
+    tags: ['core-position','memory'],
+  },
+  STRL: {
+    action: 'hold',
+    reason: 'AI data center construction. $7B backlog. Revenue +90% YoY. Down 48% from ATH on macro — thesis intact. Hold 84 core shares. Do not add until closes above $600.',
+    tags: ['core-position','ai-infrastructure'],
+  },
+  MU: {
+    action: 'hold',
+    reason: 'Added Aug 14. Memory cycle recovery + AI HBM demand. Trimmed previously around earnings uncertainty.',
+    tags: ['hold','memory'],
+  },
+};
+// ── Constants ────────────────────────────────────────────────────────────────
+const VERSION = '2.0.0';
+const TABS = [
+  {id:'overview',   label:'Overview'},
+  {id:'watchlist',  label:'Watchlist'},
+  {id:'recommend',  label:'Recommendations'},
+  {id:'roi',        label:'ROI History'},
+  {id:'import',     label:'Import'},
+  {id:'intel',      label:'📋 Intel'},
+  {id:'settings',   label:'Settings'},
+];
+const STORAGE = {
+  HOLDINGS:'pi2_holdings',
+  QUANT:'pi2_quant',
+  SA_RAW:'pi2_sa_raw',
+  SCHWAB_RAW:'pi2_schwab_raw',
+  ALLY1:'pi2_ally1',
+  ALLY2:'pi2_ally2',
+  ALLY3:'pi2_ally3',
+  INTEL:'pi2_intel',
+  LOTS:    'pi2_lots',
+  WATCHLIST:'pi2_watchlist',
+  ROI:     'pi2_roi',
+  ACCT:    'pi2_acct',
+  ATH:     'pi2_ath',
+  SETTINGS:'pi2_settings',
+};
+const FINNHUB_KEY = ''; // set in Settings
+const ACCOUNTS = ['Schwab','Ally','Vanguard','Other'];
+
+// ── State ────────────────────────────────────────────────────────────────────
+let tab = 'overview';
+let holdings = [];   // from SA paste
+let lots = [];       // from Schwab/Ally import — open cost basis lots
+let watchlist = [];  // tickers to track
+let roi = [];        // closed trades
+let sortKey = 'value';
+let sortDir = -1;
+let prices = {};     // live prices from Finnhub
+
+// ── Storage helpers ──────────────────────────────────────────────────────────
+const ls = (k, v) => {
+  try {
+    if (v === undefined) return localStorage.getItem(k);
+    localStorage.setItem(k, v);
+  } catch(e) {}
+};
+const getJSON = (k, def=[]) => { try { return JSON.parse(ls(k)||'null') ?? def; } catch(e) { return def; } };
+const setJSON = (k, v) => ls(k, JSON.stringify(v));
+
+// ── Format helpers ───────────────────────────────────────────────────────────
+const fmt  = (n, d=0) => Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
+const fmtD = d => { const[y,m,dy]=d.split('-').map(Number); return new Date(y,m-1,dy).toLocaleDateString('en-US',{month:'short',day:'numeric'}); };
+const gc   = n => n > 0 ? '#16a34a' : n < 0 ? '#dc2626' : '#64748b';
+const sign  = n => n >= 0 ? '+' : '';
+const pct   = n => sign(n) + n.toFixed(2) + '%';
+const money = (n, d=0) => (n>=0?'+$':'-$') + fmt(Math.abs(n), d);
+const toast = msg => {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+};
+
+// ── ROI helpers (module-level) ───────────────────────────────────────────────
+const getROI  = () => getJSON(STORAGE.ROI, []);
+const saveROI = v  => setJSON(STORAGE.ROI, v);
+const getLots  = () => getJSON(STORAGE.LOTS, []);
+const saveLots = v  => setJSON(STORAGE.LOTS, v);
+const getAccts  = () => getJSON(STORAGE.ACCT, {});
+const saveAccts = v  => setJSON(STORAGE.ACCT, v);
+const getWatchlist  = () => getJSON(STORAGE.WATCHLIST, []);
+const saveWatchlist = v  => setJSON(STORAGE.WATCHLIST, v);
+const getSettings   = () => getJSON(STORAGE.SETTINGS, {finnhubKey:'',claudeMode:true});
+const saveSettings  = v  => setJSON(STORAGE.SETTINGS, v);
+const getQuant  = () => getJSON(STORAGE.QUANT, {});
+const saveQuant = v  => setJSON(STORAGE.QUANT, v);
+const getIntel  = () => getJSON(STORAGE.INTEL, INTEL_SEED);
+const saveIntel = v  => setJSON(STORAGE.INTEL, v);
+
+// ── Lot engine ───────────────────────────────────────────────────────────────
+function calcLots(trades) {
+  const lots = {};
+  const closed = [];
+  trades.filter(t => t.type==='buy'||t.type==='sell').forEach(t => {
+    const key = t.ticker + '|' + t.account;
+    if (t.type === 'buy') {
+      if (!lots[key]) lots[key] = {ticker:t.ticker, account:t.account, shares:0, totalCost:0, firstDate:t.date};
+      lots[key].shares    += +t.shares;
+      lots[key].totalCost += +t.shares * +t.price;
+    } else {
+      const lot = lots[key];
+      if (!lot || lot.shares <= 0) return;
+      const avgCost   = lot.totalCost / lot.shares;
+      const sold      = Math.min(+t.shares, lot.shares);
+      const realGain  = (+t.price - avgCost) * sold;
+      const gainPct   = ((+t.price - avgCost) / avgCost) * 100;
+      const days      = lot.firstDate && t.date ? Math.round((new Date(t.date)-new Date(lot.firstDate))/86400000) : null;
+      closed.push({id:t.id, ticker:t.ticker, account:t.account, shares:sold,
+        avgCost, sellPrice:+t.price, date:t.date, reason:t.reason,
+        realGain, gainPct, days});
+      lot.totalCost -= sold * avgCost;
+      lot.shares    -= sold;
+      if (lot.shares <= 0) delete lots[key];
+    }
+  });
+  const open = Object.values(lots).map(l => ({...l, avgCost: l.totalCost/l.shares}));
+  return {open, closed};
+}
+
+// ── Schwab CSV parser ─────────────────────────────────────────────────────────
+function parseSchwab(raw, account='Schwab') {
+  raw = raw.replace(/^\uFEFF/, '');
+  const lines = raw.trim().split('\n').map(l => l.trim()).filter(l => l);
+  const n = s => parseFloat((s||'').replace(/[$,%]/g,'').replace(/,/g,'')) || 0;
+  const rows = [];
+  let header = null;
+  for (const line of lines) {
+    const cols = line.split('\t').map(c => c.trim());
+    if (!header) { header = cols; continue; }
+    const sym = cols[0];
+    if (!sym || !/^[A-Z]{1,6}$/.test(sym)) continue;
+    const qty       = n(cols[2]);
+    const price     = n(cols[3]);
+    const mktVal    = n(cols[6]);
+    const costBasis = n(cols[9]);
+    const gainDol   = n(cols[10]);
+    const gainPct   = n(cols[11]);
+    const low52     = n(cols[13]);
+    const high52    = n(cols[14]);
+    if (qty > 0 && price > 0) {
+      rows.push({
+        ticker: sym,
+        shares: qty,
+        price,
+        value: mktVal || price * qty,
+        costBasis,
+        avgCost: qty > 0 ? costBasis / qty : 0,
+        gainDol,
+        gainPct,
+        low52,
+        high52,
+        account,
+      });
+    }
+  }
+  return rows;
+}
+
+// ── Ally CSV parser ───────────────────────────────────────────────────────────
+// Ally format: similar to Schwab, detect by columns
+function parseAlly(raw) {
+  // Ally exports vary — try tab-separated first, then comma
+  raw = raw.replace(/^\uFEFF/, '');
+  const delim = raw.includes('\t') ? '\t' : ',';
+  const lines = raw.trim().split('\n').map(l => l.trim()).filter(l => l);
+  const n = s => parseFloat((s||'').replace(/[$,%"]/g,'').replace(/,/g,'')) || 0;
+  const rows = [];
+  let header = null;
+  let symIdx=-1, qtyIdx=-1, priceIdx=-1, costIdx=-1, gainIdx=-1, gainPctIdx=-1, valIdx=-1;
+  for (const line of lines) {
+    const cols = line.split(delim).map(c => c.trim().replace(/^"|"$/g,''));
+    if (!header) {
+      header = cols.map(c => c.toLowerCase());
+      symIdx     = header.findIndex(c => c.includes('symbol') || c === 'sym');
+      qtyIdx     = header.findIndex(c => c.includes('qty') || c.includes('quantity') || c.includes('shares'));
+      priceIdx   = header.findIndex(c => c.includes('price') && !c.includes('chng') && !c.includes('52'));
+      costIdx    = header.findIndex(c => c.includes('cost'));
+      gainIdx    = header.findIndex(c => c.includes('gain') && !c.includes('%'));
+      gainPctIdx = header.findIndex(c => c.includes('gain') && c.includes('%'));
+      valIdx     = header.findIndex(c => c.includes('value') || c.includes('mkt val'));
+      continue;
+    }
+    const sym = symIdx >= 0 ? cols[symIdx] : cols[0];
+    if (!sym || !/^[A-Z]{1,6}$/.test(sym)) continue;
+    const qty   = n(cols[qtyIdx >= 0 ? qtyIdx : 2]);
+    const price = n(cols[priceIdx >= 0 ? priceIdx : 3]);
+    const cost  = n(cols[costIdx >= 0 ? costIdx : 9]);
+    const gain  = n(cols[gainIdx >= 0 ? gainIdx : 10]);
+    const gainP = n(cols[gainPctIdx >= 0 ? gainPctIdx : 11]);
+    const val   = n(cols[valIdx >= 0 ? valIdx : 6]);
+    if (qty > 0 && price > 0) {
+      rows.push({ticker:sym, shares:qty, price, value:val||price*qty,
+        costBasis:cost, avgCost:qty>0?cost/qty:0,
+        gainDol:gain, gainPct:gainP, account:'Ally'});
+    }
+  }
+  return rows;
+}
+
+// ── Live price fetch (Finnhub) ────────────────────────────────────────────────
+async function fetchPrice(ticker) {
+  const settings = getSettings();
+  const key = settings.finnhubKey || FINNHUB_KEY;
+  if (!key) return null;
+  try {
+    const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${key}`);
+    const d = await r.json();
+    if (d.c) return {price:d.c, change:d.d, changePct:d.dp, high:d.h, low:d.l, prevClose:d.pc};
+  } catch(e) {}
+  return null;
+}
+
+async function fetchPrices(tickers) {
+  const results = {};
+  for (const t of tickers) {
+    const p = await fetchPrice(t);
+    if (p) results[t] = p;
+    await new Promise(r => setTimeout(r, 200)); // rate limit
+  }
+  return results;
+}
+
+
+// ── Timing engine ─────────────────────────────────────────────────────────
+function getTimingSignal(h, totalPortfolioVal, budget) {
+  const currentWeight = totalPortfolioVal > 0 ? (h.value / totalPortfolioVal) * 100 : 0;
+  const maxAdd = totalPortfolioVal * 0.05 - h.value; // room to 5%
+  const today = h.todayPct || 0;
+
+  // Timing quality based on today's move
+  let timing, timingColor, timingIcon;
+  if (today <= -3)      { timing='Strong dip — buy';   timingColor='#16a34a'; timingIcon='🟢'; }
+  else if (today <= -1) { timing='Mild dip — buy';     timingColor='#22c55e'; timingIcon='🟢'; }
+  else if (today <= 1)  { timing='Flat — neutral';     timingColor='#f59e0b'; timingIcon='🟡'; }
+  else if (today <= 3)  { timing='Up — wait';          timingColor='#f97316'; timingIcon='🟠'; }
+  else                  { timing='Extended — no chase'; timingColor='#dc2626'; timingIcon='🔴'; }
+
+  // Week/month/6mo — pending Finnhub
+  const pending = '<span style="color:#94a3b8;font-size:10px">📡 pending Finnhub</span>';
+
+  // Position size suggestion
+  let suggestedDol = 0;
+  let suggestedShares = 0;
+  let sizeNote = '';
+
+  if (maxAdd <= 0) {
+    sizeNote = 'At or above 5% limit — no add';
+  } else if (today <= 1) {
+    // Good or neutral entry — suggest up to half the room or $10K max
+    suggestedDol = Math.min(maxAdd, budget * 0.4, 10000);
+    suggestedShares = h.price > 0 ? Math.floor(suggestedDol / h.price) : 0;
+    sizeNote = suggestedShares > 0 ? `~${suggestedShares}sh ($${Math.round(suggestedShares*h.price).toLocaleString()})` : 'Too small';
+  } else {
+    // Extended — small starter only
+    suggestedDol = Math.min(maxAdd * 0.25, budget * 0.15, 3000);
+    suggestedShares = h.price > 0 ? Math.floor(suggestedDol / h.price) : 0;
+    sizeNote = suggestedShares > 0 ? `Starter only ~${suggestedShares}sh ($${Math.round(suggestedShares*h.price).toLocaleString()})` : 'Skip today';
+  }
+
+  // Price range — entry zone based on today's price ± buffer
+  const entryLow  = h.price * (1 - 0.02);  // 2% below current
+  const entryHigh = h.price * (1 + 0.01);  // 1% above current
+  const rangeStr  = `$${entryLow.toFixed(2)} – $${entryHigh.toFixed(2)}`;
+
+  return {
+    timing, timingColor, timingIcon,
+    currentWeight: currentWeight.toFixed(1),
+    maxAdd: maxAdd > 0 ? `$${Math.round(maxAdd).toLocaleString()}` : null,
+    sizeNote, suggestedDol, suggestedShares,
+    rangeStr, pending,
+    canAdd: maxAdd > 0 && today <= 3,
+  };
+}
+
+// ── Recommendation engine ─────────────────────────────────────────────────────
+function scorePosition(h, lot) {
+  const signals = [];
+  let score = 0;
+  // Use manually entered Quant score if available
+  const manualQuant = getQuant()[h.ticker];
+  if (manualQuant) h = {...h, score: manualQuant};
+  // Check portfolio intelligence
+  const intel = getIntel()[h.ticker];
+  if (intel) {
+    if (intel.action === 'pass') {
+      signals.push({label:'⛔ Pass: '+intel.reason.substring(0,60)+'…', weight:-999, icon:'⛔'});
+      return {score:-999, verdict:'Pass', color:'#94a3b8', tag:'pass', signals, intel};
+    }
+    if (intel.action === 'watch') {
+      signals.push({label:'👁 Watch: '+intel.reason.substring(0,60)+'…', weight:-10, icon:'👁'});
+      score -= 10;
+    }
+    if (intel.action === 'hold' && intel.reason) {
+      signals.push({label:'📋 History: '+intel.reason.substring(0,50)+'…', weight:0, icon:'📋'});
+    }
+  }
+
+  // Signal 1: SA Quant
+  if (h.score) {
+    const isQ = h.score <= 5;
+    if (isQ && h.score >= 4.5) { signals.push({label:'Strong Buy Quant', weight:+25, icon:'🟢'}); score += 25; }
+    else if (isQ && h.score >= 4.0) { signals.push({label:'Buy Quant', weight:+15, icon:'🟢'}); score += 15; }
+    else if (isQ && h.score >= 3.5) { signals.push({label:'Hold Quant', weight:0, icon:'🟡'}); }
+    else if (isQ && h.score < 3.0) { signals.push({label:'Weak Quant', weight:-15, icon:'🔴'}); score -= 15; }
+    else if (!isQ && h.score >= 8) { signals.push({label:'Smart Score '+h.score, weight:+20, icon:'🟢'}); score += 20; }
+    else if (!isQ && h.score >= 6) { signals.push({label:'Smart Score '+h.score, weight:+5, icon:'🟡'}); score += 5; }
+    else if (!isQ) { signals.push({label:'Smart Score '+h.score, weight:-10, icon:'🔴'}); score -= 10; }
+  }
+
+  // Signal 2: Analyst upside — >25% is explicit buy signal
+  if (h.upside) {
+    if (h.upside >= 40) { signals.push({label:'Upside '+h.upside.toFixed(0)+'%', weight:+25, icon:'🟢'}); score += 25; }
+    else if (h.upside >= 25) { signals.push({label:'Upside '+h.upside.toFixed(0)+'%', weight:+20, icon:'🟢'}); score += 20; }
+    else if (h.upside >= 15) { signals.push({label:'Upside '+h.upside.toFixed(0)+'%', weight:+5, icon:'🟡'}); score += 5; }
+    else if (h.upside > 0) { signals.push({label:'Low upside '+h.upside.toFixed(0)+'%', weight:-10, icon:'🔴'}); score -= 10; }
+  } else if (h.upside === 0 && h.score > 0) {
+    // No upside data available — neutral, don't penalize
+  } else if (!h.upside && !h.score) {
+    signals.push({label:'No signal data', weight:0, icon:'⬜'});
+  }
+
+  // Signal 3: Momentum grade
+  if (h.momentum) {
+    if (h.momentum.startsWith('A')) { signals.push({label:'Momentum '+h.momentum, weight:+10, icon:'🟢'}); score += 10; }
+    else if (h.momentum.startsWith('B')) { signals.push({label:'Momentum '+h.momentum, weight:+5, icon:'🟡'}); score += 5; }
+    else if (h.momentum.startsWith('C')) { signals.push({label:'Momentum '+h.momentum, weight:0, icon:'🟡'}); }
+    else if (h.momentum.startsWith('D')) { signals.push({label:'Momentum '+h.momentum, weight:-10, icon:'🔴'}); score -= 10; }
+  }
+
+  // Signal 4: Cost basis vs current (from Schwab lots)
+  if (lot) {
+    const lotGain = ((h.price - lot.avgCost) / lot.avgCost) * 100;
+    if (lotGain < -20) { signals.push({label:'Down '+lotGain.toFixed(0)+'% from cost', weight:-15, icon:'🔴'}); score -= 15; }
+    else if (lotGain > 50) { signals.push({label:'Up '+lotGain.toFixed(0)+'% from cost', weight:-5, icon:'🟡'}); score -= 5; }
+    else if (lotGain > 25) { signals.push({label:'Up '+lotGain.toFixed(0)+'% from cost', weight:+5, icon:'🟢'}); score += 5; }
+  }
+
+  // Signal 5: Today momentum
+  if (h.todayPct > 3) { signals.push({label:'Up '+h.todayPct.toFixed(1)+'% today', weight:+5, icon:'🟢'}); score += 5; }
+  else if (h.todayPct < -3) { signals.push({label:'Down '+Math.abs(h.todayPct).toFixed(1)+'% today', weight:-5, icon:'🔴'}); score -= 5; }
+
+  // Verdict
+  let verdict, color, tag;
+  if (score >= 40) { verdict='Strong Buy'; color='#16a34a'; tag='strong-buy'; }
+  else if (score >= 20) { verdict='Buy'; color='#2563eb'; tag='buy'; }
+  else if (score >= 0) { verdict='Hold'; color='#f59e0b'; tag='hold'; }
+  else if (score >= -20) { verdict='Watch'; color='#f59e0b'; tag='watch'; }
+  else { verdict='Trim'; color='#dc2626'; tag='trim'; }
+
+  return {score, verdict, color, tag, signals};
+}
+
+// ── Claude AI recommendation ──────────────────────────────────────────────────
+async function getAIRec(ticker, h, rec) {
+  const prompt = `You are a portfolio analyst. Analyze ${ticker} and give a concise 2-sentence investment recommendation.
+
+Current data:
+- Price: $${h.price.toFixed(2)}
+- SA Quant Score: ${h.score || 'N/A'} (${h.quantLabel || 'N/A'})
+- Momentum Grade: ${h.momentum || 'N/A'}
+- Analyst Upside: ${h.upside ? h.upside.toFixed(0)+'%' : 'N/A'}
+- Today: ${h.todayPct ? sign(h.todayPct)+h.todayPct.toFixed(2)+'%' : 'N/A'}
+- Data signals score: ${rec.score}/100 (${rec.verdict})
+
+Respond in exactly this JSON format:
+{"summary": "2-sentence max recommendation", "key_risk": "biggest risk in 10 words", "catalyst": "next catalyst in 10 words"}`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 300,
+        messages: [{role:'user', content:prompt}]
+      })
+    });
+    const d = await r.json();
+    const text = d.content?.find(b => b.type==='text')?.text || '';
+    const m = text.match(/\{[\s\S]*\}/);
+    if (m) return JSON.parse(m[0]);
+  } catch(e) {}
+  return null;
+};
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function renderNav() {
+  document.getElementById('nav').innerHTML = TABS.map(t =>
+    `<button class="nav-btn${tab===t.id?' active':''}" onclick="setTab('${t.id}')">${t.label}</button>`
+  ).join('');
+}
+
+function setTab(t) {
+  tab = t;
+  render();
+}
+
+// ── Header totals ─────────────────────────────────────────────────────────────
+function updateHeader() {
+  const total = holdings.reduce((s,h) => s+h.value, 0);
+  const today = holdings.reduce((s,h) => s+(h.todayPct/100)*h.value, 0);
+  document.getElementById('hdr-total').textContent = total > 0 ? '$'+fmt(total) : '';
+  const el = document.getElementById('hdr-today');
+  if (today !== 0) {
+    el.textContent = money(today) + ' today';
+    el.style.color = today >= 0 ? '#86efac' : '#fca5a5';
+  } else {
+    el.textContent = '';
+  }
+}
+
+// ── Master render ─────────────────────────────────────────────────────────────
+function render() {
+  renderNav();
+  updateHeader();
+  const app = document.getElementById('app');
+  if (tab === 'overview')   renderOverview(app);
+  else if (tab === 'watchlist')  renderWatchlist(app);
+  else if (tab === 'recommend')  renderRecommend(app);
+  else if (tab === 'roi')        renderROI(app);
+  else if (tab === 'import')     renderImport(app);
+  else if (tab === 'settings')   renderSettings(app);
+  else if (tab === 'intel')        renderIntel(app);
+}
+
+// ── Overview ──────────────────────────────────────────────────────────────────
+function allocateAccounts(holdings){
+  const acctMap={};
+  const splits=getAccts();
+  // Build lot account map as fallback — use imported lots to auto-assign accounts
+  const lotAcctMap={};
+  getLots().forEach(l=>{ if(!lotAcctMap[l.ticker])lotAcctMap[l.ticker]=l.account; });
+  holdings.forEach(h=>{
+    const raw=splits[h.ticker];const split=Array.isArray(raw)?raw:[];
+    const pps=h.value/h.shares;
+    if(!split.length){
+      // Use lot account if available, else Untagged
+      const acct=lotAcctMap[h.ticker]||"—";
+      if(!acctMap[acct])acctMap[acct]={value:0,today:0,gain:0,cost:0,holdings:[]};
+      acctMap[acct].value+=h.value;
+      acctMap[acct].today+=(h.todayPct/100)*h.value;
+      const gp=h.gainPct||0;
+      const hcost=h.gainDol!==undefined?h.value-h.gainDol:h.value*100/(100+gp);
+      acctMap[acct].gain+=h.value-hcost;acctMap[acct].cost+=hcost;
+      acctMap[acct].holdings.push({...h,allocShares:h.shares,allocValue:h.value});
+    } else {
+      const totalTagged=split.reduce((s,sp)=>s+(+sp.shares),0);
+      split.forEach(sp=>{
+        const frac=(+sp.shares)/Math.max(totalTagged,h.shares);
+        const val=h.value*frac;
+        const gp2=h.gainPct||0;
+        const hcost=(h.gainDol!==undefined?(h.value-h.gainDol)*frac:h.value*100/(100+gp2)*frac);
+        if(!acctMap[sp.account])acctMap[sp.account]={value:0,today:0,gain:0,cost:0,holdings:[]};
+        acctMap[sp.account].value+=val;
+        acctMap[sp.account].today+=(h.todayPct/100)*val;
+        acctMap[sp.account].gain+=val-hcost;acctMap[sp.account].cost+=hcost;
+        acctMap[sp.account].holdings.push({...h,allocShares:+sp.shares,allocValue:val});
+      });
+      if(totalTagged<h.shares){
+        const rem=h.shares-totalTagged;const val=pps*rem;
+        const gp3=h.gainPct||0;
+        const hcost=(h.gainDol!==undefined?(h.value-h.gainDol)*(rem/h.shares):h.value*100/(100+gp3)*(rem/h.shares));
+        if(!acctMap["—"])acctMap["—"]={value:0,today:0,gain:0,cost:0,holdings:[]};
+        acctMap["—"].value+=val;acctMap["—"].today+=(h.todayPct/100)*val;
+        acctMap["—"].gain+=val-hcost;acctMap["—"].cost+=hcost;
+        acctMap["—"].holdings.push({...h,allocShares:rem,allocValue:val});
+      }
+    }
+  });
+  return acctMap;
+}
+
+function getSplit(ticker){
+  const val=getAccts()[ticker];
+  if(!val)return[];
+  if(Array.isArray(val))return val;
+  return[]; // old string format — drop it, user will re-tag
+}
+
+
+// ── Account cell renderer — used in holdings table ─────────────────────────
+function renderAcctCell(ticker, shares) {
+  const sp = getSplit(ticker);
+  const acMap = getAccts();
+  if (sp.length === 0) {
+    const cur = typeof acMap[ticker] === "string" ? acMap[ticker] : "—";
+    return `<select data-ticker="${ticker}" data-shares="${shares}"
+      onchange="setSingleAcct(this.dataset.ticker, this.value, +this.dataset.shares)"
+      style="padding:2px 5px;border:1px solid #e2e8f0;border-radius:5px;font-size:10px;background:#f8fafc;color:#475569">
+      ${["—","Schwab","Ally","Vanguard","Other"].map(a=>`<option value="${a}"${cur===a?" selected":""}>${a}</option>`).join("")}
+    </select>`;
+  }
+  return `<div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center">
+    ${sp.map((s,si)=>`<span style="background:#eff6ff;border-radius:5px;padding:2px 5px;font-size:10px;white-space:nowrap">
+      <strong style="color:#2563eb">${s.account}</strong> ${s.shares}sh
+      <button data-ticker="${ticker}" data-idx="${si}"
+        onclick="removeSplit(this.dataset.ticker,+this.dataset.idx)"
+        style="border:none;background:none;color:#94a3b8;cursor:pointer;padding:0;font-size:10px">×</button>
+    </span>`).join("")}
+    <button data-ticker="${ticker}" data-shares="${shares}"
+      onclick="openSplitEditor(this.dataset.ticker,+this.dataset.shares)"
+      style="padding:2px 5px;border:1px dashed #cbd5e1;border-radius:5px;font-size:10px;color:#64748b;background:none;cursor:pointer">✎</button>
+  </div>`;
+}
+function renderOverview(app) {
+  if (!holdings.length) {
+    app.innerHTML = `<div class="empty">
+      <div class="empty-icon">📊</div>
+      <div class="empty-title">No portfolio data yet</div>
+      <p class="muted" style="margin-bottom:16px">Import your holdings to get started</p>
+      <button class="btn btn-primary" onclick="setTab('import')">Go to Import →</button>
+    </div>`;
+    return;
+  }
+
+  const accts = getAccts();
+  const totalVal   = holdings.reduce((s,h)=>s+h.value, 0);
+  const totalToday = holdings.reduce((s,h)=>s+(h.todayPct/100)*h.value, 0);
+  const cost       = holdings.reduce((s,h)=>{ const gp=h.gainPct||0; return s+(h.gainDol!==undefined?h.value-h.gainDol:h.value*100/(100+gp)); }, 0);
+  const totalGain  = totalVal - cost;
+
+  const acctOrder  = ["Schwab","Ally","Vanguard","Other","—"];
+  const acctMap    = allocateAccounts(holdings);
+  const acctRows   = acctOrder.filter(a=>acctMap[a]).map(a=>{
+    const g   = acctMap[a];
+    const pct = g.cost>0 ? (g.gain/g.cost)*100 : 0;
+    // Deduplicate tickers within this account
+    const map = {};
+    g.holdings.forEach(h=>{
+      if(!map[h.ticker]) map[h.ticker]={ticker:h.ticker,allocShares:0,allocValue:0,wGain:0,wToday:0};
+      const m=map[h.ticker];
+      m.wGain   += h.gainPct*(h.allocValue||h.value);
+      m.wToday  += h.todayPct*(h.allocValue||h.value);
+      m.allocShares += (h.allocShares||h.shares);
+      m.allocValue  += (h.allocValue||h.value);
+    });
+    const deduped = Object.values(map)
+      .map(m=>({...m, gainPct:m.wGain/m.allocValue, todayPct:m.wToday/m.allocValue}))
+      .sort((a,b)=>b.gainPct-a.gainPct);
+    return {name:a, val:g.value, today:g.today, gain:g.gain, pct, deduped};
+  });
+
+  const top5  = [...holdings].sort((a,b)=>b.todayPct-a.todayPct).slice(0,5);
+  const bot5  = [...holdings].sort((a,b)=>a.todayPct-b.todayPct).slice(0,5);
+  const color = n => n==="Schwab"?"#2563eb":n==="Ally"?"#16a34a":n==="Vanguard"?"#7c3aed":"#94a3b8";
+
+  app.innerHTML = `
+    <!-- KPIs -->
+    <div class="krow" style="margin-bottom:16px">
+      <div class="kpi"><div class="kl">Total Value</div><div class="kv">$${fmt(totalVal)}</div><div class="ks muted">${holdings.length} positions</div></div>
+      <div class="kpi"><div class="kl">Today</div><div class="kv" style="color:${gc(totalToday)}">${totalToday>=0?"+$":"-$"}${fmt(Math.abs(totalToday),0)}</div><div class="ks muted">${((totalToday/totalVal)*100).toFixed(2)}%</div></div>
+      <div class="kpi"><div class="kl">Total P&L</div><div class="kv" style="color:${gc(totalGain)}">${totalGain>=0?"+$":"-$"}${fmt(Math.abs(totalGain),0)}</div><div class="ks muted">${((totalGain/cost)*100).toFixed(1)}%</div></div>
+      <div class="kpi"><div class="kl">Positions</div><div class="kv">${holdings.length}</div><div class="ks muted">${acctRows.filter(r=>r.name!=="—").length} account${acctRows.filter(r=>r.name!=="—").length!==1?"s":""}</div></div>
+    </div>
+
+    <!-- Account breakdown -->
+    ${acctRows.length ? `
+    <div style="margin-bottom:16px">
+      <div class="sl" style="margin-bottom:8px">By Account</div>
+      <div style="display:grid;grid-template-columns:repeat(${Math.min(acctRows.length,4)},1fr);gap:10px">
+        ${acctRows.map(r=>{
+          const id  = "acct-"+r.name.replace(/[^a-z]/gi,"");
+          const col = color(r.name);
+          const top5pos = r.deduped.slice(0,5);
+          const rest    = r.deduped.slice(5);
+          const posRow  = h => `<div style="display:grid;grid-template-columns:52px 38px 1fr 56px;gap:2px;align-items:center;padding:2px 0;border-bottom:1px solid #f8fafc;font-size:11px">
+            <span style="font-weight:700">${h.ticker}</span>
+            <span style="color:#94a3b8;font-size:10px">${h.allocShares}sh</span>
+            <span style="color:${gc(h.todayPct)};font-weight:600;text-align:center">${h.todayPct>=0?"+":""}${h.todayPct.toFixed(1)}%</span>
+            <span style="color:${gc(h.gainPct)};font-weight:600;text-align:right">${h.gainPct>=0?"+":""}${h.gainPct.toFixed(1)}%</span>
+          </div>`;
+          return `<div class="card" style="border-left:3px solid ${col}">
+            <!-- Header — always visible, click toggles -->
+            <div style="cursor:pointer" onclick="ovToggle('${id}')">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                <span style="font-size:13px;font-weight:700">${r.name==="—"?"Untagged":r.name}</span>
+                <span id="${id}-chev" style="font-size:10px;color:#94a3b8">▲</span>
+              </div>
+              <div style="font-size:19px;font-weight:800;margin-bottom:2px">$${fmt(r.val,0)}</div>
+              <div style="font-size:12px;color:${gc(r.today)};font-weight:600">${r.today>=0?"+$":"-$"}${fmt(Math.abs(r.today),0)} today</div>
+              <div style="font-size:11px;color:${gc(r.gain)};margin-top:3px">${r.gain>=0?"+$":"-$"}${fmt(Math.abs(r.gain),0)} total (${r.pct>=0?"+":""}${r.pct.toFixed(1)}%)</div>
+            </div>
+            <!-- Position list — visible by default, collapses on click -->
+            <div id="${id}-list" style="margin-top:8px;border-top:1px solid #f1f5f9;padding-top:6px">
+              <div style="display:grid;grid-template-columns:52px 38px 1fr 56px;gap:2px;font-size:10px;color:#94a3b8;padding:2px 0;margin-bottom:2px">
+                <span>Ticker</span><span>Shares</span><span style="text-align:center">Today%</span><span style="text-align:right">ROI%</span>
+              </div>
+              ${top5pos.map(posRow).join("")}
+              ${rest.length ? `
+                <div id="${id}-more" style="display:none">
+                  ${rest.map(posRow).join("")}
+                </div>
+                <div style="text-align:center;margin-top:4px">
+                  <button onclick="event.stopPropagation();ovMore('${id}')"
+                    id="${id}-morebtn"
+                    style="border:none;background:none;color:#2563eb;font-size:10px;font-weight:600;cursor:pointer;padding:2px 8px">
+                    +${rest.length} more ▼
+                  </button>
+                </div>` : ""}
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>` : ""}
+
+    <!-- Top/Bottom Today -->
+    <div class="two">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span class="sl" style="margin:0">Top Performers — Today</span>
+          <span class="sl muted" style="margin:0">Today% · Value</span>
+        </div>
+        ${top5.map(h=>`<div style="display:grid;grid-template-columns:64px 1fr 58px 68px;gap:4px;align-items:center;padding:3px 0;border-bottom:1px solid #f8fafc">
+          <span style="font-weight:700;font-size:12px">${h.ticker}</span>
+          <span style="font-size:10px;color:#94a3b8">${Array.isArray(accts[h.ticker])?accts[h.ticker].map(s=>s.account).join("/"):(typeof accts[h.ticker]==="string"&&accts[h.ticker]!=="—"?accts[h.ticker]:"")}</span>
+          <span style="color:${gc(h.todayPct)};font-weight:700;font-size:12px;text-align:right">${h.todayPct>=0?"+":""}${(+h.todayPct).toFixed(2)}%</span>
+          <span style="color:#64748b;font-size:11px;text-align:right">$${fmt(h.value,0)}</span>
+        </div>`).join("")}
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span class="sl" style="margin:0">Laggards — Today</span>
+          <span class="sl muted" style="margin:0">Today% · Value</span>
+        </div>
+        ${bot5.map(h=>`<div style="display:grid;grid-template-columns:64px 1fr 58px 68px;gap:4px;align-items:center;padding:3px 0;border-bottom:1px solid #f8fafc">
+          <span style="font-weight:700;font-size:12px">${h.ticker}</span>
+          <span style="font-size:10px;color:#94a3b8">${Array.isArray(accts[h.ticker])?accts[h.ticker].map(s=>s.account).join("/"):(typeof accts[h.ticker]==="string"&&accts[h.ticker]!=="—"?accts[h.ticker]:"")}</span>
+          <span style="color:${gc(h.todayPct)};font-weight:700;font-size:12px;text-align:right">${h.todayPct>=0?"+":""}${(+h.todayPct).toFixed(2)}%</span>
+          <span style="color:#64748b;font-size:11px;text-align:right">$${fmt(h.value,0)}</span>
+        </div>`).join("")}
+      </div>
+    </div>
+
+    <!-- All Holdings with account assignment -->
+    <div class="card" style="margin-top:14px">
+      <div class="sl">All Holdings — click Source to assign account</div>
+      <div style="overflow-x:auto;border-radius:8px;border:1px solid #e2e8f0;margin-top:8px">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr>
+            <th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:2px solid #e2e8f0">Source</th>
+            <th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:2px solid #e2e8f0">Ticker</th>
+            <th style="text-align:right;padding:8px 10px;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:2px solid #e2e8f0">Shares</th>
+            <th style="text-align:right;padding:8px 10px;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:2px solid #e2e8f0">Price</th>
+            <th style="text-align:right;padding:8px 10px;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:2px solid #e2e8f0">Value</th>
+            <th style="text-align:right;padding:8px 10px;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:2px solid #e2e8f0">Today%</th>
+            <th style="text-align:right;padding:8px 10px;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:2px solid #e2e8f0">ROI%</th>
+            <th style="text-align:right;padding:8px 10px;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:2px solid #e2e8f0">Quant</th>
+          </tr></thead>
+          <tbody>
+            ${[...holdings].sort((a,b)=>b.value-a.value).map((h,i)=>`<tr style="${i%2?'background:#f8fafc':''}">
+              <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9" id="acell-${h.ticker}">
+                ${renderAcctCell(h.ticker, h.shares)}
+              </td>
+              <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;font-weight:700">${h.ticker}</td>
+              <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:right;color:#64748b">${h.shares}</td>
+              <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:right">$${h.price.toFixed(2)}</td>
+              <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:600">$${fmt(h.value,0)}</td>
+              <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:right;color:${gc(h.todayPct)};font-weight:600">${h.todayPct>=0?"+":""}${(h.todayPct||0).toFixed(2)}%</td>
+              <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:right;color:${gc(h.gainPct)};font-weight:600">${h.gainPct>=0?"+":""}${(h.gainPct||0).toFixed(1)}%</td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  // Toggle entire position list visibility
+  window.ovToggle = id => {
+    const list = document.getElementById(id+"-list");
+    const chev = document.getElementById(id+"-chev");
+    if (!list) return;
+    const open = list.style.display !== "none";
+    list.style.display = open ? "none" : "block";
+    if (chev) chev.textContent = open ? "▼" : "▲";
+  };
+
+  // Show remaining positions beyond top 5
+  window.ovMore = id => {
+    const more = document.getElementById(id+"-more");
+    const btn  = document.getElementById(id+"-morebtn");
+    if (!more) return;
+    more.style.display = "block";
+    if (btn) btn.style.display = "none";
+  };
+}
+
+
+
+
+
+// ── Watchlist ─────────────────────────────────────────────────────────────────
+function renderWatchlist(app) {
+  const wl = getWatchlist();
+  const settings = getSettings();
+  const hasKey = !!settings.finnhubKey;
+
+  app.innerHTML = `
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div class="card-title" style="margin:0">Add to Watchlist</div>
+        <input id="wl-input" placeholder="Ticker (e.g. DELL)" style="width:160px"
+          onkeydown="if(event.key==='Enter')addToWatchlist()">
+        <button class="btn btn-primary btn-sm" onclick="addToWatchlist()">+ Add</button>
+        ${!hasKey?'<span style="font-size:11px;color:#f59e0b">⚠ Add Finnhub API key in Settings for live prices</span>':''}
+        ${hasKey&&wl.length?'<button class="btn btn-secondary btn-sm" onclick="refreshAllPrices()">↻ Refresh prices</button>':''}
+      </div>
+    </div>
+    ${!wl.length ? `<div class="empty">
+      <div class="empty-icon">👁</div>
+      <div class="empty-title">Watchlist is empty</div>
+      <p class="muted">Add tickers to track them with live prices</p>
+    </div>` : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+      ${wl.map(item => {
+        const p = prices[item.ticker];
+        return `<div class="ticker-card">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+            <div>
+              <div style="font-size:16px;font-weight:800">${item.ticker}</div>
+              <div style="font-size:11px;color:#94a3b8">${item.note||'Watchlist'}</div>
+            </div>
+            <button onclick="removeFromWatchlist('${item.ticker}')"
+              style="border:none;background:none;color:#cbd5e1;cursor:pointer;font-size:16px;line-height:1">×</button>
+          </div>
+          ${p ? `
+            <div style="font-size:24px;font-weight:800;margin-bottom:4px">$${p.price.toFixed(2)}</div>
+            <div style="font-size:13px;color:${gc(p.change)};font-weight:600">${sign(p.change)}$${Math.abs(p.change).toFixed(2)} (${sign(p.changePct)}${p.changePct.toFixed(2)}%)</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px">H: $${p.high.toFixed(2)} · L: $${p.low.toFixed(2)}</div>
+          ` : `<div style="font-size:13px;color:#94a3b8">${hasKey?'<span class="spinner"></span> Loading...':'Add API key for live prices'}</div>`}
+          ${item.target ? `<div style="font-size:11px;color:#2563eb;margin-top:6px;font-weight:600">Target: $${item.target} ${p?'('+((item.target/p.price-1)*100).toFixed(0)+'% away)':''}</div>` : ''}
+          ${item.thesis ? `<div style="font-size:10px;color:#64748b;margin-top:6px;padding-top:6px;border-top:1px solid #f1f5f9">${item.thesis}</div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>`}
+  `;
+}
+
+function addToWatchlist() {
+  const inp = document.getElementById('wl-input');
+  const ticker = (inp?.value||'').toUpperCase().trim();
+  if (!ticker) return;
+  const wl = getWatchlist();
+  if (wl.find(w => w.ticker===ticker)) { toast(ticker+' already in watchlist'); return; }
+  wl.push({ticker, addedDate: new Date().toISOString().split('T')[0]});
+  saveWatchlist(wl);
+  watchlist = wl;
+  if (inp) inp.value = '';
+  // Fetch price immediately
+  const settings = getSettings();
+  if (settings.finnhubKey) {
+    fetchPrice(ticker).then(p => {
+      if (p) { prices[ticker] = p; renderWatchlist(document.getElementById('app')); }
+    });
+  }
+  renderWatchlist(document.getElementById('app'));
+}
+
+window.removeFromWatchlist = ticker => {
+  const wl = getWatchlist().filter(w => w.ticker !== ticker);
+  saveWatchlist(wl);
+  watchlist = wl;
+  delete prices[ticker];
+  renderWatchlist(document.getElementById('app'));
+};
+
+window.refreshAllPrices = async () => {
+  const wl = getWatchlist();
+  toast('Refreshing ' + wl.length + ' prices...');
+  const tickers = wl.map(w => w.ticker);
+  const p = await fetchPrices(tickers);
+  Object.assign(prices, p);
+  renderWatchlist(document.getElementById('app'));
+  toast('Prices updated');
+};
+
+// ── Recommendations ───────────────────────────────────────────────────────────
+
+
+;
+
+// ── ROI History ───────────────────────────────────────────────────────────────
+function renderRecommend(app) {
+  const lotMap = {};
+  getLots().forEach(l => { if (!lotMap[l.ticker]) lotMap[l.ticker]=l; });
+  const settings = getSettings();
+  const wl = getWatchlist();
+  const totalVal = holdings.reduce((s,h)=>s+h.value, 0);
+
+  // Section 1: portfolio scored
+  const portfolioAll = holdings.map(h => ({...h, rec:scorePosition(h, lotMap[h.ticker])}))
+    .sort((a,b) => b.rec.score - a.rec.score);
+  // Already sorted by score desc — strong-buy at top, buy below
+  const portfolioScored = portfolioAll.filter(h => (h.rec.tag==='strong-buy' || h.rec.tag==='buy') && h.rec.tag!=='pass');
+
+  // Section 2: watchlist/curated (not in portfolio)
+  const wlExternal = wl.filter(w => !holdings.find(h => h.ticker===w.ticker));
+  const wlAll = wlExternal.map(w => {
+    const p = prices[w.ticker];
+    const h = {ticker:w.ticker, shares:0, price:p?.price||0, value:0,
+      gainPct:0, todayPct:p?.changePct||0, score:0, quantLabel:'',
+      momentum:'', upside:0, trScore:0, isWatchlist:true,
+      note:w.note||'', target:w.target||0, thesis:w.thesis||''};
+    return {...h, rec:scorePosition(h, null)};
+  });
+  const wlScored = wlAll.filter(h => (h.rec.tag==='strong-buy' || h.rec.tag==='buy') && h.rec.tag!=='pass').sort((a,b)=>b.rec.score-a.rec.score);
+
+  // Section 3: AI discoveries (stored in state)
+  const discoveries = window._discoveries || [];
+
+  app.innerHTML = `
+    <!-- Section 1: Portfolio -->
+    <!-- Daily budget input -->
+    <div class="card" style="margin-bottom:16px;padding:12px 16px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="font-size:13px;font-weight:700">💰 Today's Budget</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:12px;color:#64748b">$</span>
+          <input type="number" id="daily-budget" value="${window._dailyBudget||10000}"
+            onchange="window._dailyBudget=+this.value;renderRecommend(document.getElementById('app'))"
+            style="width:100px;padding:5px 8px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-weight:600">
+        </div>
+        <span style="font-size:11px;color:#94a3b8">Set your available capital for today — engine sizes positions within this budget</span>
+        <span style="font-size:11px;color:#94a3b8">· Week/Month/6Mo timing: 📡 pending Finnhub (tomorrow)</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="font-size:16px;font-weight:800">📊 Your Portfolio — Timing</div>
+        <span style="font-size:11px;color:#64748b">${portfolioScored.length} actionable · ${portfolioAll.length} total</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${portfolioScored.map(h => timingCard(h, totalVal, window._dailyBudget||10000, settings)).join('')}
+      </div>
+    </div>
+
+    <!-- Section 2: Watchlist / Curated -->
+    <div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="font-size:16px;font-weight:800">👁 Watchlist & Candidates</div>
+        <span style="font-size:11px;color:#64748b">${wlScored.length} Buy signals · ${wlAll.length} total watched</span>
+      </div>
+      ${wlScored.length ? `<div style="display:flex;flex-direction:column;gap:10px">
+        ${wlScored.map(h => recCard(h, settings, false)).join('')}
+      </div>` : `<div class="card" style="text-align:center;padding:24px;color:#94a3b8">
+        <div style="font-size:24px;margin-bottom:8px">👁</div>
+        <div style="font-weight:600;color:#475569;margin-bottom:4px">No watchlist candidates yet</div>
+        <div style="font-size:12px;margin-bottom:12px">Add tickers in the Watchlist tab to track them here</div>
+        <button class="btn btn-secondary btn-sm" onclick="setTab('watchlist')">Go to Watchlist →</button>
+      </div>`}
+    </div>
+
+    <!-- Section 3: AI Discover -->
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="font-size:16px;font-weight:800">🔭 AI Discover</div>
+        <span style="font-size:11px;color:#64748b">Names that fit your thesis — beyond your portfolio</span>
+        <button class="btn btn-primary btn-sm" id="discover-btn" onclick="runDiscover()">
+          ${discoveries.length ? '↻ Refresh Picks' : '🤖 Find Opportunities'}
+        </button>
+        ${discoveries.length?'<span style="font-size:11px;color:#94a3b8">Last run: '+((window._discoverTime)||'—')+'</span>':''}
+      </div>
+      <div id="discover-results">
+        ${discoveries.length ? discoveries.map(d => discoverCard(d)).join('') :
+          `<div class="card" style="text-align:center;padding:32px;color:#94a3b8">
+            <div style="font-size:32px;margin-bottom:10px">🔭</div>
+            <div style="font-weight:600;color:#475569;margin-bottom:6px">Ready to discover</div>
+            <div style="font-size:12px;max-width:400px;margin:0 auto">
+              Claude will analyze your portfolio concentration and surface 4-5 names
+              that complement your thesis — the next MRVL, TTMI, or STRL.
+            </div>
+          </div>`}
+      </div>
+    </div>`;
+}
+
+
+function timingCard(h, totalVal, budget, settings) {
+  const r = h.rec;
+  const t = getTimingSignal(h, totalVal, budget);
+  const borderColor = r.tag==='strong-buy'?'#16a34a':'#2563eb';
+  const aiId = 'ai-'+h.ticker+'-port';
+  return `<div class="card" style="border-left:4px solid ${borderColor}">
+    <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px">
+
+      <!-- Left: ticker + verdict -->
+      <div style="display:flex;align-items:center;gap:12px">
+        <div>
+          <div style="font-size:18px;font-weight:800">${h.ticker}</div>
+          <div style="font-size:11px;color:#64748b">$${h.price.toFixed(2)} · ${h.shares}sh · $${fmt(h.value,0)} · ${t.currentWeight}% of portfolio</div>
+        </div>
+        <div style="text-align:center;padding:6px 12px;background:#f8fafc;border-radius:8px">
+          <div style="font-size:18px;font-weight:900;color:${r.color}">${r.verdict}</div>
+          <div style="font-size:10px;color:#94a3b8">Score ${r.score}</div>
+        </div>
+      </div>
+
+      <!-- Right: timing + size -->
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:220px">
+        <!-- Timing row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
+          <div style="background:#f8fafc;border-radius:8px;padding:6px 8px;text-align:center">
+            <div style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase">Today</div>
+            <div style="font-size:13px;font-weight:700;color:${t.timingColor}">${t.timingIcon} ${h.todayPct>=0?'+':''}${(h.todayPct||0).toFixed(2)}%</div>
+          </div>
+          <div style="background:#f8fafc;border-radius:8px;padding:6px 8px;text-align:center">
+            <div style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase">Week</div>
+            <div style="font-size:10px;padding-top:2px">${t.pending}</div>
+          </div>
+          <div style="background:#f8fafc;border-radius:8px;padding:6px 8px;text-align:center">
+            <div style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase">Month</div>
+            <div style="font-size:10px;padding-top:2px">${t.pending}</div>
+          </div>
+          <div style="background:#f8fafc;border-radius:8px;padding:6px 8px;text-align:center">
+            <div style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase">6 Mo</div>
+            <div style="font-size:10px;padding-top:2px">${t.pending}</div>
+          </div>
+        </div>
+        <!-- Entry zone + size -->
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div style="background:${t.canAdd?'#f0fdf4':'#fef2f2'};border-radius:8px;padding:6px 10px;font-size:11px">
+            <span style="color:#64748b">Entry zone:</span> <strong>${t.rangeStr}</strong>
+          </div>
+          <div style="background:#eff6ff;border-radius:8px;padding:6px 10px;font-size:11px">
+            <span style="color:#64748b">Size:</span> <strong style="color:#2563eb">${t.sizeNote}</strong>
+          </div>
+          ${t.maxAdd?`<div style="font-size:10px;color:#94a3b8">Room to 5%: ${t.maxAdd}</div>`:'<div style="font-size:10px;color:#dc2626;font-weight:600">At 5% limit</div>'}
+        </div>
+        <!-- Timing verdict -->
+        <div style="font-size:12px;font-weight:700;color:${t.timingColor}">${t.timingIcon} ${t.timing}</div>
+      </div>
+    </div>
+
+    <!-- Signals -->
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">
+      ${r.signals.filter(s=>s.weight!==0).map(s=>`<span style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:2px 7px;font-size:10px;white-space:nowrap">
+        ${s.icon} ${s.label} <strong style="color:${s.weight>0?'#16a34a':s.weight<0?'#dc2626':'#64748b'}">${s.weight>0?'+':''}${s.weight}</strong>
+      </span>`).join('')}
+    </div>
+
+    ${settings.claudeMode?`<div id="${aiId}" style="margin-top:8px;padding:8px 12px;background:#f8fafc;border-radius:8px;font-size:12px">
+      <button class="btn btn-secondary btn-sm" onclick="loadAISummary('${h.ticker}','${aiId}')" data-ticker="${h.ticker}" data-id="${aiId}">🤖 AI analysis</button>
+    </div>`:''}
+  </div>`;
+}
+
+function recCard(h, settings, isDiscover) {
+  const r = h.rec;
+  const aiId = 'ai-'+h.ticker+'-'+(h.isWatchlist?'wl':'port');
+  const borderColor = r.tag==='strong-buy'?'#16a34a':r.tag==='buy'?'#2563eb':r.tag==='hold'?'#f59e0b':r.tag==='watch'?'#f59e0b':'#dc2626';
+  return `<div class="card" style="border-left:4px solid ${borderColor}">
+    <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:18px;font-weight:800">${h.ticker}</span>
+            ${h.isWatchlist?'<span style="font-size:9px;background:#eff6ff;color:#2563eb;padding:2px 6px;border-radius:10px;font-weight:700">WATCHLIST</span>':''}
+          </div>
+          <div style="font-size:12px;color:#64748b">${h.price?'$'+h.price.toFixed(2):''}${h.shares?' · '+h.shares+'sh':''}${h.value?' · $'+fmt(h.value,0):h.thesis?' · '+h.thesis:''}</div>
+        </div>
+        <div style="text-align:center;padding:6px 12px;background:#f8fafc;border-radius:8px">
+          <div style="font-size:20px;font-weight:900;color:${r.color};line-height:1">${r.verdict}</div>
+          <div style="font-size:10px;color:#94a3b8">Score: ${r.score}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;max-width:500px">
+        ${r.signals.map(s=>`<span style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:2px 7px;font-size:10px;white-space:nowrap">
+          ${s.icon} ${s.label} <strong style="color:${s.weight>0?'#16a34a':s.weight<0?'#dc2626':'#64748b'}">${s.weight>0?'+':''}${s.weight}</strong>
+        </span>`).join('')}
+        ${!r.signals.length?'<span style="font-size:11px;color:#94a3b8">No signal data — paste SA data to score</span>':''}
+      </div>
+    </div>
+    ${settings.claudeMode?`<div id="${aiId}" style="margin-top:8px;padding:8px 12px;background:#f8fafc;border-radius:8px;font-size:12px">
+      <button class="btn btn-secondary btn-sm" onclick="loadAISummary(this.dataset.ticker, this.dataset.id)" data-ticker="${h.ticker}" data-id="${aiId}">🤖 AI analysis</button>
+    </div>`:''}
+    ${h.isWatchlist?`<div style="margin-top:6px">
+      <button class="btn btn-secondary btn-sm" onclick="removeFromWatchlist('${h.ticker}');renderRecommend(document.getElementById('app'))">Remove from watchlist</button>
+    </div>`:''}
+  </div>`;
+}
+
+function discoverCard(d) {
+  return `<div class="card" style="border-left:4px solid #8b5cf6;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:18px;font-weight:800">${d.ticker}</span>
+            <span style="font-size:9px;background:#f3e8ff;color:#7c3aed;padding:2px 6px;border-radius:10px;font-weight:700">AI PICK</span>
+            <span style="font-size:11px;font-weight:700;color:#7c3aed">${d.conviction||''}</span>
+          </div>
+          <div style="font-size:12px;color:#64748b">${d.category||'Emerging opportunity'}</div>
+        </div>
+      </div>
+      <button class="btn btn-sm" style="background:#f3e8ff;color:#7c3aed;border:1px solid #e9d5ff"
+        onclick="addDiscoveryToWatchlist(this.dataset.ticker, this.dataset.thesis)"
+        data-ticker="${d.ticker}" data-thesis="${(d.thesis||'').replace(/"/g,'&quot;')}">
+        + Add to Watchlist
+      </button>
+    </div>
+    <div style="font-size:13px;color:#0f172a;margin-bottom:8px;line-height:1.5">${d.thesis}</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      ${d.why_fits?`<div style="font-size:11px"><span style="color:#7c3aed;font-weight:700">Why it fits:</span> ${d.why_fits}</div>`:''}
+      ${d.key_risk?`<div style="font-size:11px"><span style="color:#dc2626;font-weight:700">Risk:</span> ${d.key_risk}</div>`:''}
+      ${d.catalyst?`<div style="font-size:11px"><span style="color:#16a34a;font-weight:700">Catalyst:</span> ${d.catalyst}</div>`:''}
+    </div>
+  </div>`;
+}
+
+window.runDiscover = async () => {
+  const btn = document.getElementById('discover-btn');
+  const results = document.getElementById('discover-results');
+  if (btn) btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+  if (results) results.innerHTML = '<div class="loading"><div class="spinner"></div> Claude is analyzing your portfolio and surfacing opportunities...</div>';
+
+  const held = holdings.map(h => h.ticker).join(', ');
+  const totalVal = holdings.reduce((s,h)=>s+h.value,0);
+  const semis = holdings.filter(h=>['NVDA','AMD','AVGO','TSM','MU','ASML','ADI','KLAC','AMAT','MRVL'].includes(h.ticker));
+  const semiPct = semis.reduce((s,h)=>s+h.value,0)/totalVal*100;
+
+  const prompt = `You are a portfolio strategist analyzing an aggressive-growth equity portfolio worth $${Math.round(totalVal/1000)}K.
+
+Current holdings: ${held}
+Semiconductor concentration: ~${Math.round(semiPct)}%
+Investment thesis: AI infrastructure, semiconductors, megacap tech, 20-year horizon, aggressive growth
+
+Suggest 4-5 specific stocks that:
+1. Complement this portfolio without excessive overlap
+2. Have strong AI/tech tailwinds the investor may be missing
+3. Could be "the next MRVL" — high conviction, not widely held yet
+4. Fit an aggressive growth, long horizon style
+
+For each, provide a compelling thesis. Think beyond the obvious names.
+
+Respond ONLY with valid JSON array, no markdown, no explanation outside the JSON:
+[
+  {
+    "ticker": "SYMBOL",
+    "category": "category label",
+    "conviction": "High/Medium",
+    "thesis": "2-3 sentence investment thesis",
+    "why_fits": "why this complements the portfolio in 10 words",
+    "key_risk": "biggest risk in 8 words",
+    "catalyst": "next catalyst in 8 words"
+  }
+]`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1500,
+        messages:[{role:'user', content:prompt}]
+      })
+    });
+    const d = await r.json();
+    const text = d.content?.find(b=>b.type==='text')?.text||'';
+    const m = text.match(/\[\s*\{[\s\S]*\}\s*\]/);
+    if (m) {
+      window._discoveries = JSON.parse(m[0]);
+      window._discoverTime = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+      renderRecommend(document.getElementById('app'));
+    } else {
+      if (results) results.innerHTML = '<div class="card" style="color:#dc2626;padding:16px">AI response could not be parsed. Try again.</div>';
+      if (btn) btn.innerHTML = '↻ Retry';
+    }
+  } catch(e) {
+    if (results) results.innerHTML = '<div class="card" style="color:#dc2626;padding:16px">Error: '+e.message+'</div>';
+    if (btn) btn.innerHTML = '↻ Retry';
+  }
+};
+
+window.addDiscoveryToWatchlist = (ticker, thesis) => {
+  const wl = getWatchlist();
+  if (wl.find(w=>w.ticker===ticker)) { toast(ticker+' already in watchlist'); return; }
+  wl.push({ticker, thesis, addedDate:new Date().toISOString().split('T')[0], fromAI:true});
+  saveWatchlist(wl);
+  toast(ticker+' added to watchlist');
+  renderRecommend(document.getElementById('app'));
+};
+
+function renderROI(app) {
+  const allTrades = getROI();
+  const {open, closed} = calcLots(allTrades);
+  const totalRealized = closed.reduce((s,t) => s+t.realGain, 0);
+  const currentUnrealized = holdings.reduce((s,h) => {
+    const cost = h.value/(1+(h.gainPct||0)/100);
+    return s+(h.value-cost);
+  }, 0);
+  const trueTotal = totalRealized + currentUnrealized;
+  const winners = closed.filter(t => t.realGain > 0);
+  const losers  = closed.filter(t => t.realGain <= 0);
+  const winRate = closed.length ? Math.round(winners.length/closed.length*100) : 0;
+
+  app.innerHTML = `
+    <div class="grid4" style="margin-bottom:16px">
+      <div class="kpi"><div class="label">Realized P&L</div><div class="value" style="color:${gc(totalRealized)}">${money(totalRealized)}</div><div class="sub">${closed.length} closed trades</div></div>
+      <div class="kpi"><div class="label">Unrealized</div><div class="value" style="color:${gc(currentUnrealized)}">${money(currentUnrealized)}</div><div class="sub">${holdings.length} open positions</div></div>
+      <div class="kpi"><div class="label">True Total</div><div class="value" style="color:${gc(trueTotal)}">${money(trueTotal)}</div><div class="sub">realized + unrealized</div></div>
+      <div class="kpi"><div class="label">Win Rate</div><div class="value">${winRate}%</div><div class="sub">${winners.length}W / ${losers.length}L</div></div>
+    </div>
+
+    <div class="grid2" style="margin-bottom:14px">
+      <!-- Open lots -->
+      <div class="card">
+        <div class="card-title">Open Lots (${open.length})</div>
+        ${open.length ? `<div class="twrap"><table>
+          <thead><tr><th style="text-align:left">Ticker</th><th style="text-align:left">Account</th><th>Shares</th><th>Avg Cost</th><th>Current</th><th>Unreal P&L</th></tr></thead>
+          <tbody>${open.map(l => {
+            const h = holdings.find(x => x.ticker===l.ticker);
+            const curr = h?.price || 0;
+            const unreal = curr ? (curr - l.avgCost) * l.shares : null;
+            return `<tr>
+              <td style="font-weight:700">${l.ticker}</td>
+              <td style="color:#64748b;font-size:11px">${l.account}</td>
+              <td>${l.shares.toFixed(2)}</td>
+              <td>$${l.avgCost.toFixed(2)}</td>
+              <td>${curr?'$'+curr.toFixed(2):'—'}</td>
+              <td style="color:${unreal?gc(unreal):'#94a3b8'};font-weight:600">${unreal?money(unreal,0):'—'}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table></div>` : '<div class="muted" style="font-size:12px">No open lots — import Schwab/Ally CSV to populate</div>'}
+      </div>
+
+      <!-- Log trade -->
+      <div class="card">
+        <div class="card-title">Log Trade</div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button id="btn-buy" class="btn btn-success btn-sm" onclick="setTradeType('buy')">🟢 Buy</button>
+          <button id="btn-sell" class="btn btn-secondary btn-sm" onclick="setTradeType('sell')">🔴 Sell</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div><label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Ticker</label>
+            <input id="t-ticker" list="t-ticker-list" placeholder="NVDA" style="text-transform:uppercase">
+            <datalist id="t-ticker-list">${holdings.map(h=>'<option value="'+h.ticker+'">').join('')}</datalist>
+          </div>
+          <div><label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Account</label>
+            <select id="t-account">${ACCOUNTS.map(a=>'<option>'+a+'</option>').join('')}</select>
+          </div>
+          <div><label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Shares</label>
+            <input type="number" id="t-shares" placeholder="100" oninput="updateROIPreview()"></div>
+          <div><label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Price/share</label>
+            <input type="number" id="t-price" placeholder="225.00" step="0.01" oninput="updateROIPreview()"></div>
+          <div><label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Date</label>
+            <input type="date" id="t-date"></div>
+          <div><label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Reason</label>
+            <select id="t-reason">
+              <option>New position</option><option>Add</option><option>Trim</option>
+              <option>Exit — thesis broken</option><option>Exit — stop triggered</option>
+              <option>Tax loss harvest</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div id="roi-preview" style="background:#f8fafc;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#64748b;min-height:32px">Fill shares and price to preview</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-primary btn-sm" onclick="submitTrade()">Save Trade</button>
+          <div id="t-err" class="err"></div>
+        </div>
+      </div>
+    </div>
+
+    ${closed.length ? `
+    <div class="card">
+      <div class="card-title">Closed Trades (${closed.length})</div>
+      <div class="twrap"><table>
+        <thead><tr>
+          <th style="text-align:left">Ticker</th><th style="text-align:left">Account</th>
+          <th>Shares</th><th>Avg Cost</th><th>Sell $</th>
+          <th>Realized P&L</th><th>Return%</th><th>Days</th>
+          <th style="text-align:left">Reason</th><th>Date</th><th></th>
+        </tr></thead>
+        <tbody>${closed.sort((a,b)=>new Date(b.date)-new Date(a.date)).map((t,i) => `<tr>
+          <td style="font-weight:700">${t.ticker}</td>
+          <td style="font-size:11px;color:#64748b">${t.account}</td>
+          <td>${t.shares.toLocaleString()}</td>
+          <td>$${t.avgCost.toFixed(2)}</td>
+          <td>$${t.sellPrice.toFixed(2)}</td>
+          <td style="color:${gc(t.realGain)};font-weight:700">${money(t.realGain,0)}</td>
+          <td style="color:${gc(t.gainPct)};font-weight:600">${sign(t.gainPct)}${t.gainPct.toFixed(1)}%</td>
+          <td class="muted">${t.days!==null?t.days+'d':'—'}</td>
+          <td style="font-size:11px;color:#64748b;text-align:left">${t.reason||'—'}</td>
+          <td style="font-size:11px;color:#64748b">${t.date?fmtD(t.date):'—'}</td>
+          <td><button onclick="deleteTrade('${t.id}')" style="border:none;background:#fee2e2;color:#dc2626;border-radius:5px;padding:2px 8px;cursor:pointer;font-size:10px">Del</button></td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>` : ''}
+  `;
+
+  // Set default date to today
+  const dateEl = document.getElementById('t-date');
+  if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().split('T')[0];
+  updateBuyBtn();
+}
+
+let tradeType = 'buy';
+window.setTradeType = type => {
+  tradeType = type;
+  updateBuyBtn();
+  updateROIPreview();
+};
+function updateBuyBtn() {
+  const bb = document.getElementById('btn-buy');
+  const sb = document.getElementById('btn-sell');
+  if (bb) bb.className = 'btn btn-sm ' + (tradeType==='buy'?'btn-success':'btn-secondary');
+  if (sb) sb.className = 'btn btn-sm ' + (tradeType==='sell'?'btn-danger':'btn-secondary');
+}
+window.updateROIPreview = () => {
+  const sh = parseFloat(document.getElementById('t-shares')?.value||0);
+  const pr = parseFloat(document.getElementById('t-price')?.value||0);
+  const el = document.getElementById('roi-preview');
+  if (!el) return;
+  if (sh>0&&pr>0) {
+    const total = sh*pr;
+    el.textContent = (tradeType==='buy'?'Cost: ':'Proceeds: ')+'$'+fmt(total,0)+' · '+sh+' shares @ $'+pr.toFixed(2);
+    el.style.background = tradeType==='buy'?'#eff6ff':'#fef2f2';
+  } else {
+    el.textContent = 'Fill shares and price to preview';
+    el.style.background = '#f8fafc';
+  }
+};
+window.submitTrade = () => {
+  const ticker  = (document.getElementById('t-ticker')?.value||'').toUpperCase().trim();
+  const account = document.getElementById('t-account')?.value||'Schwab';
+  const shares  = parseFloat(document.getElementById('t-shares')?.value||0);
+  const price   = parseFloat(document.getElementById('t-price')?.value||0);
+  const date    = document.getElementById('t-date')?.value||'';
+  const reason  = document.getElementById('t-reason')?.value||'Other';
+  const errEl   = document.getElementById('t-err');
+  if (!ticker||shares<=0||price<=0) { if(errEl) errEl.textContent='Ticker, shares and price required.'; return; }
+  if (errEl) errEl.textContent = '';
+  const trades = getROI();
+  trades.push({id:Date.now(), type:tradeType, ticker, account, shares, price, date, reason});
+  saveROI(trades);
+  toast((tradeType==='buy'?'Buy':'Sell')+' logged: '+ticker+' '+shares+'sh @ $'+price.toFixed(2));
+  renderROI(document.getElementById('app'));
+};
+window.deleteTrade = id => {
+  saveROI(getROI().filter(t => t.id !== +id));
+  renderROI(document.getElementById('app'));
+};
+
+
+// ── Ally Vertical parser (copy-paste from Ally Holdings page) ────────────────
+function parseAllyVertical(raw, account='Ally') {
+  raw = raw.replace(/^\uFEFF/, '');
+  const n = s => parseFloat((s||'').replace(/[$,%()\s]/g,'').replace(/^[+\s]+/,'')) || 0;
+  const signed = s => {
+    const neg = s.includes('-');
+    return Math.abs(n(s)) * (neg ? -1 : 1);
+  };
+  const lines = raw.trim().split('\n').map(l => l.trim()).filter(l => l);
+  const SKIP = ['Holdings','Sym',"Today's G/L","Change $","(%)","Total G/L","Qty","Mkt Value",
+    "Today's Gain/Loss","Change","Total Gain/Loss","Market Value","Quantity"];
+  let i = 0;
+  while (i < lines.length && SKIP.includes(lines[i])) i++;
+  const rows = [];
+  while (i < lines.length) {
+    const ticker = lines[i].toUpperCase().replace(/[^A-Z]/g,'');
+    if (!ticker || ticker.length > 6 || ticker.length < 1) { i++; continue; }
+    i++;
+    // Skip company name (long non-numeric line)
+    if (i < lines.length && !/^\$/.test(lines[i]) && !/^\d+$/.test(lines[i]) && lines[i].length > 3 && !/^\(/.test(lines[i])) i++;
+    // Skip single-char flags (D=dividend, etc)
+    while (i < lines.length && /^[A-Z]$/.test(lines[i])) i++;
+    // Collect 7 data lines
+    const chunk = [];
+    while (i < lines.length && chunk.length < 7) {
+      const line = lines[i];
+      if (/^[A-Z]{1,6}$/.test(line) && chunk.length >= 4) break;
+      if (SKIP.includes(line)) break;
+      chunk.push(line); i++;
+    }
+    if (chunk.length < 6) continue;
+    // chunk[0]=todayGL$, [1]=change$ signed, [2]=change%, [3]=totalGL$, [4]=totalGL%, [5]=qty, [6]=mktVal
+    // Sign comes from chunk[1] (change$), magnitude from chunk[2] (change%)
+    const changeNeg = chunk[1].trim().startsWith('-');
+    const changePct = (changeNeg ? -1 : 1) * Math.abs(parseFloat((chunk[2]||'').replace(/[()%\s]/g,''))||0);
+    const totalNeg  = chunk[3].trim().startsWith('-') || (chunk[3].trim().startsWith('$') && parseFloat(chunk[3].replace(/[$,\s]/g,'')) < 0);
+    const totalPct  = signed(chunk[4]) * (totalNeg && signed(chunk[4]) > 0 ? -1 : 1);
+    const qty       = n(chunk[5]);
+    const mktVal    = n(chunk[6]);
+    const totalGL   = signed(chunk[3]);
+    const price     = qty > 0 ? mktVal / qty : 0;
+    const costBasis = mktVal - totalGL;
+    const avgCost   = qty > 0 ? costBasis / qty : 0;
+    if (ticker && qty > 0 && price > 0) {
+      rows.push({ticker, shares:qty, price, value:mktVal,
+        costBasis, avgCost, gainDol:totalGL, gainPct:totalPct,
+        todayPct:changePct, account});
+    }
+  }
+  return rows;
+}
+// ── Import ─────────────────────────────────────────────────────────────────────
+function renderImport(app) {
+  app.innerHTML = `
+    <div style="max-width:900px">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">📊 Holdings — TipRanks or Schwab</div>
+        <p style="font-size:12px;color:#64748b;margin-bottom:10px">Paste from TipRanks Portfolio page (preferred — includes Smart Score + upside%) or Schwab CSV export. Auto-detects format.</p>
+        <textarea id="sa-raw" rows="6" onload="this.value=ls(STORAGE.SA_RAW)||this.value" placeholder="Paste TipRanks portfolio table here (copy all rows)\n\nOR paste Schwab CSV export..."></textarea>
+        <div id="sa-result" style="font-size:12px;color:#64748b;margin-top:6px"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">🏦 Schwab CSV — Cost Basis</div>
+        <p style="font-size:12px;color:#64748b;margin-bottom:10px">Accounts → Holdings → Export → CSV. Populates ROI open lots with your actual cost basis.</p>
+        <textarea id="schwab-raw" rows="5" placeholder="Paste Schwab CSV export here..."></textarea>
+        <div id="schwab-result" style="font-size:12px;color:#64748b;margin-top:6px"></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">🏦 Ally — Cost Basis (3 accounts)</div>
+        <p style="font-size:12px;color:#64748b;margin-bottom:10px">Copy holdings from each Ally account page and paste below. All three combine under "Ally".</p>
+        <div class="grid3">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">Ally Account 1</div>
+            <textarea id="ally-raw-1" rows="5" placeholder="Paste Ally holdings here..."></textarea>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">Ally Account 2</div>
+            <textarea id="ally-raw-2" rows="5" placeholder="Paste Ally holdings here..."></textarea>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">Ally Account 3</div>
+            <textarea id="ally-raw-3" rows="5" placeholder="Paste Ally holdings here..."></textarea>
+          </div>
+        </div>
+        <div id="ally-result" style="font-size:12px;color:#64748b;margin-top:6px"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn btn-primary" onclick="runImport()">Import All →</button>
+        <button class="btn btn-secondary" onclick="clearAll()">↺ Clear all data</button>
+        <div id="import-status" style="font-size:12px;color:#64748b"></div>
+      </div>
+    </div>`;
+  // Restore last saved pastes
+  setTimeout(()=>{
+    const sa = ls(STORAGE.SA_RAW); if(sa) { const el=document.getElementById('sa-raw'); if(el) el.value=sa; }
+    const sw = ls(STORAGE.SCHWAB_RAW); if(sw) { const el=document.getElementById('schwab-raw'); if(el) el.value=sw; }
+    const a1 = ls(STORAGE.ALLY1); if(a1) { const el=document.getElementById('ally-raw-1'); if(el) el.value=a1; }
+    const a2 = ls(STORAGE.ALLY2); if(a2) { const el=document.getElementById('ally-raw-2'); if(el) el.value=a2; }
+    const a3 = ls(STORAGE.ALLY3); if(a3) { const el=document.getElementById('ally-raw-3'); if(el) el.value=a3; }
+    // Show last import status
+    const saEl=document.getElementById('sa-result');
+    if(saEl&&holdings.length) saEl.textContent='✅ Last import: '+holdings.length+' positions (click Import to refresh)';
+  },0);
+}
+
+// ── SA parser (vertical format) ───────────────────────────────────────────────
+function parseSA(raw) {
+  raw = raw.replace(/^\uFEFF/, '');
+  const lines = raw.trim().split('\n').map(l => l.trim()).filter(l => l);
+  const n = s => parseFloat((s||'').replace(/[$,%]/g,'').replace(/,/g,''))||0;
+  const SKIP = ['Symbol','Sort by','Shares','Value','Price','Today','Quant','SA Analyst','Total','Momentum','Days','Upcoming','Announce'];
+  const rows = [];
+  let i = 0;
+  while (i < lines.length && SKIP.some(h => lines[i].startsWith(h))) i++;
+  while (i < lines.length) {
+    const ticker = lines[i].toUpperCase().replace(/[^A-Z]/g,'');
+    if (!ticker || ticker.length>6 || ticker.length<2) { i++; continue; }
+    i++;
+    const chunk = []; let j = i;
+    while (j < lines.length && chunk.length < 14) {
+      const line = lines[j];
+      if (/^[A-Z]{2,6}$/.test(line) && chunk.length>5) break;
+      if (line.startsWith('Post.')||line.startsWith('Pre.')||line.startsWith('AH.')) { j++; continue; }
+      if (SKIP.some(h => line.startsWith(h))) { j++; continue; }
+      chunk.push(line); j++;
+    }
+    i = j;
+    if (chunk.length < 5) continue;
+    const shares = n(chunk[0]), value = n(chunk[1]), price = n(chunk[2]);
+    const todayPct = n(chunk[4]);
+    const rLines = chunk.filter(l => l.startsWith('Rating:') && /\d+\.\d+$/.test(l) && !l.includes('Not Covered'));
+    const qLine = rLines[0]||'';
+    const score = qLine ? parseFloat(qLine.match(/(\d+\.\d+)$/)?.[1]||0) : 0;
+    const quantLabel = qLine ? qLine.replace(/Rating:\s*/,'').replace(/\d+\.\d+$/,'').trim() : '';
+    const saLine = rLines[1]||'';
+    const saScore = saLine ? parseFloat(saLine.match(/(\d+\.\d+)$/)?.[1]||0) : 0;
+    const saLabel = saLine ? saLine.replace(/Rating:\s*/,'').replace(/\d+\.\d+$/,'').trim() : '';
+    const pctLines = chunk.filter(l => /^-?\d+\.?\d*%$/.test(l));
+    const gainPct = pctLines.length>1 ? n(pctLines[pctLines.length-1]) : 0;
+    const momentum = chunk.find(l => /^[A-D][+-]?$/.test(l))||'';
+    const saEarnings = chunk.find(l => /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(l))||'';
+    if (ticker && price>0 && shares>0) {
+      rows.push({ticker, shares, value, price, todayPct, gainPct, score, quantLabel,
+        saScore, saLabel, momentum, saEarnings, upside:0, trScore:0});
+    }
+  }
+  return rows.sort((a,b) => b.value-a.value);
+}
+
+
+
+// ── TipRanks parser ────────────────────────────────────────────────────────
+function parseTR(raw) {
+  raw = raw.replace(/^\uFEFF/, '');
+  const lines = raw.trim().split('\n').map(l => l.trim()).filter(l => l);
+  const n = s => parseFloat((s||'').replace(/[$,%()]/g,'').replace(/,/g,'').trim()) || 0;
+  const rows = [];
+  let header = null;
+  let tI=0,sharesI=2,priceI=3,pctI=4,consI=5,upsideI=6,scoreI=8,valI=9,gainDolI=10,gainPctI=11;
+  for (const line of lines) {
+    const cols = line.split('\t').map(c => c.trim());
+    if (!header) {
+      header = cols.map(c => c.toLowerCase());
+      header.forEach((h,i) => {
+        if (h==='ticker') tI=i;
+        else if (h.includes('shares')) sharesI=i;
+        else if (h==='price') priceI=i;
+        else if (h==='% change') pctI=i;
+        else if (h.includes('consensus')) consI=i;
+        else if (h.includes('target %')) upsideI=i;
+        else if (h.includes('smart')) scoreI=i;
+        else if (h.includes('value')) valI=i;
+        else if (h.includes('gain change') && !h.includes('%')) gainDolI=i;
+        else if (h.includes('gain change %')) gainPctI=i;
+      });
+      continue;
+    }
+    const ticker = cols[tI];
+    if (!ticker || !/^[A-Z]{1,6}$/.test(ticker)) continue;
+    const shares   = n(cols[sharesI]);
+    const price    = n(cols[priceI]);
+    const todayPct = n(cols[pctI]);
+    const upside   = n(cols[upsideI]);
+    const trScore  = n(cols[scoreI]);
+    const value    = n(cols[valI]) || price*shares;
+    const gainDol  = n(cols[gainDolI]);
+    const gainPct  = n(cols[gainPctI]);
+    const consensus= cols[consI]||'';
+    if (ticker && shares>0 && price>0) {
+      rows.push({ticker, shares, price, value, todayPct, upside, trScore,
+        gainDol, gainPct, consensus, score:0, quantLabel:'', momentum:'', account:''});
+    }
+  }
+  return rows.sort((a,b)=>b.value-a.value);
+}
+
+// ── Schwab CSV as holdings display source ─────────────────────────────────
+function parseSchwabAsHoldings(raw) {
+  raw = raw.replace(/^\uFEFF/, '');
+  const lines = raw.trim().split('\n').map(l => l.trim()).filter(l => l);
+  const n = s => parseFloat((s||'').replace(/[$,%()]/g,'').replace(/,/g,'').trim()) || 0;
+  const rows = [];
+  let header = null;
+  let symI=0,qtyI=2,priceI=3,pricePctI=4,priceDolI=5,valI=6,dayDolI=7,dayPctI=8,costI=9,gainDolI=10,gainPctI=11;
+  for (const line of lines) {
+    const cols = line.split('\t').map(c => c.trim());
+    if (!header) {
+      header = cols.map(c => c.toLowerCase());
+      // Find columns by header name
+      header.forEach((h,i) => {
+        if (h.includes('symbol')) symI=i;
+        else if (h.includes('qty') || h.includes('quantity')) qtyI=i;
+        else if (h==='price') priceI=i;
+        else if (h.includes('price chng %') || h.includes('price change %')) pricePctI=i;
+        else if (h.includes('price chng $') || h.includes('price change $')) priceDolI=i;
+        else if (h.includes('mkt val') || h.includes('market value')) valI=i;
+        else if (h.includes('day chng $') || h.includes('day change $')) dayDolI=i;
+        else if (h.includes('day chng %') || h.includes('day change %')) dayPctI=i;
+        else if (h.includes('cost basis')) costI=i;
+        else if (h.includes('gain $') || h.includes('gain/loss $')) gainDolI=i;
+        else if (h.includes('gain %') || h.includes('gain/loss %')) gainPctI=i;
+      });
+      continue;
+    }
+    const sym = cols[symI];
+    if (!sym || !/^[A-Z]{1,6}$/.test(sym)) continue;
+    const qty     = n(cols[qtyI]);
+    const price   = n(cols[priceI]);
+    const val     = n(cols[valI]) || price*qty;
+    const cost    = n(cols[costI]);
+    const gainDol = n(cols[gainDolI]);
+    const gainPct = n(cols[gainPctI]);
+    const todayPct= n(cols[dayPctI]);
+    if (qty > 0 && price > 0) {
+      rows.push({
+        ticker: sym,
+        shares: qty,
+        price,
+        value: val,
+        gainDol,
+        gainPct,
+        todayPct,
+        costBasis: cost,
+        avgCost: qty > 0 ? cost/qty : 0,
+        score: 0,
+        quantLabel: '',
+        momentum: '',
+        upside: 0,
+        trScore: 0,
+        account: 'Schwab',
+      });
+    }
+  }
+  return rows.sort((a,b) => b.value - a.value);
+}
+
+window.runImport = () => {
+  const statusEl = document.getElementById('import-status');
+  if (statusEl) statusEl.textContent = 'Parsing...';
+  const saRaw     = document.getElementById('sa-raw')?.value||'';
+  const schwabRaw = document.getElementById('schwab-raw')?.value||'';
+  // Ally handled below via 3 separate boxes
+  let imported = [];
+
+  // Holdings paste — auto-detects SA vertical, Schwab CSV, or Ally vertical
+  if (saRaw.trim()) {
+    const el = document.getElementById('sa-result');
+    const raw = saRaw.replace(/^\uFEFF/,'');
+    let rows = [];
+    let fmt = '';
+
+    if (raw.includes('Smart Score') || (raw.includes('Analyst Consensus') && raw.includes('Ticker'))) {
+      // TipRanks portfolio paste
+      rows = parseTR(raw);
+      fmt = 'TipRanks';
+    } else if (raw.includes('\t') && (raw.includes('Symbol\t') || raw.match(/^Symbol[\t ]/m) || raw.includes('Qty (Quantity)'))) {
+      // Schwab-style TSV
+      rows = parseSchwabAsHoldings(raw);
+      fmt = 'Schwab CSV';
+    } else if (raw.includes('Rating:') || raw.includes('Sort by')) {
+      rows = parseSA(raw);
+      fmt = 'SA Vertical';
+    } else if (raw.includes('Holdings') && raw.includes('Mkt Value')) {
+      rows = parseAllyVertical(raw, 'Portfolio');
+      fmt = 'Ally Vertical';
+    } else {
+      rows = parseSA(raw);
+      fmt = 'SA (auto)';
+    }
+
+    if (rows.length) {
+      holdings = rows;
+      setJSON(STORAGE.HOLDINGS, rows);
+      if (el) el.textContent = '✅ '+rows.length+' positions loaded ('+fmt+')';
+      ls(STORAGE.SA_RAW, saRaw);
+      imported.push('Holdings ('+rows.length+'p)');
+    } else {
+      const firstLines = raw.trim().split('\n').slice(0,3).map(l=>l.trim().substring(0,50));
+      if (el) el.innerHTML = '❌ No positions found (tried '+fmt+')<br><small style="color:#94a3b8">'+firstLines.join(' | ')+'</small>';
+    }
+  }
+
+  // Schwab → lots
+  if (schwabRaw.trim()) {
+    const rows = parseSchwab(schwabRaw, 'Schwab');
+    if (rows.length) {
+      // Convert to open lots for ROI tracker
+      const existing = getROI().filter(t => t.account !== 'Schwab' || t.type === 'sell');
+      const newBuys  = rows.map(r => ({
+        id: Date.now()+Math.random(),
+        type: 'buy',
+        ticker: r.ticker,
+        account: 'Schwab',
+        shares: r.shares,
+        price: r.avgCost,
+        date: '',  // unknown — Schwab CSV doesn't include buy date at position level
+        reason: 'Imported from Schwab',
+        imported: true,
+      }));
+      // Remove old Schwab imports, add new ones
+      const cleaned = getROI().filter(t => !t.imported || t.account !== 'Schwab');
+      saveROI([...cleaned, ...newBuys]);
+      document.getElementById('schwab-result').textContent = '✅ '+rows.length+' positions imported as lots';
+      ls(STORAGE.SCHWAB_RAW, schwabRaw);
+      imported.push('Schwab ('+rows.length+'p)');
+    } else {
+      document.getElementById('schwab-result').textContent = '❌ No positions found — check format';
+    }
+  }
+
+  // Ally → lots (3 accounts combined)
+  const allyRaws = [
+    document.getElementById('ally-raw-1')?.value||'',
+    document.getElementById('ally-raw-2')?.value||'',
+    document.getElementById('ally-raw-3')?.value||'',
+  ].filter(r => r.trim());
+  if (allyRaws.length) {
+    let allAllyRows = [];
+    allyRaws.forEach(raw => {
+      const rows = parseAllyVertical(raw, 'Ally');
+      allAllyRows = allAllyRows.concat(rows);
+    });
+    if (allAllyRows.length) {
+      const newBuys = allAllyRows.map(r => ({
+        id: Date.now()+Math.random(),
+        type: 'buy',
+        ticker: r.ticker,
+        account: 'Ally',
+        shares: r.shares,
+        price: r.avgCost,
+        date: '',
+        reason: 'Imported from Ally',
+        imported: true,
+      }));
+      const cleaned = getROI().filter(t => !t.imported || t.account !== 'Ally');
+      saveROI([...cleaned, ...newBuys]);
+      const el = document.getElementById('ally-result');
+      if (el) el.textContent = '✅ '+allAllyRows.length+' positions imported from '+allyRaws.length+' Ally account(s)';
+      allyRaws.forEach((r,i)=>{ if(r.trim()) ls(STORAGE['ALLY'+(i+1)],r); });
+      imported.push('Ally ('+allAllyRows.length+'p)');
+    } else {
+      const el = document.getElementById('ally-result');
+      if (el) el.textContent = '❌ No positions found — check format';
+    }
+  }
+
+  // Also merge Ally holdings into display holdings if no SA pasted
+  if (!saRaw.trim() && allyRaws.length) {
+    let allAllyHoldings = [];
+    allyRaws.forEach(raw => {
+      const rows = parseAllyVertical(raw, 'Ally');
+      allAllyHoldings = allAllyHoldings.concat(rows);
+    });
+    if (allAllyHoldings.length) {
+      // Merge with existing holdings or replace
+      const existing = holdings.filter(h => !allAllyHoldings.find(a => a.ticker===h.ticker));
+      holdings = [...existing, ...allAllyHoldings];
+      setJSON(STORAGE.HOLDINGS, holdings);
+    }
+  }
+
+  if (imported.length) {
+    // Force re-render with current in-memory holdings
+    tab = 'overview';
+    toast('✅ Imported: '+imported.join(', '));
+    render();
+  } else {
+    // Show what was detected
+    const saLen = saRaw.trim().length;
+    const schLen = schwabRaw.trim().length;
+    const allyLen = allyRaws.reduce((s,r)=>s+r.trim().length,0);
+    toast('Nothing imported — SA:'+saLen+'chars Schwab:'+schLen+'chars Ally:'+allyLen+'chars');
+  }
+};
+
+window.saveQuantScore = (ticker, val) => {
+  const q = getQuant();
+  if (val) q[ticker] = parseFloat(val);
+  else delete q[ticker];
+  saveQuant(q);
+  // Update score in holdings array
+  const h = holdings.find(x => x.ticker===ticker);
+  if (h) h.score = parseFloat(val)||0;
+};
+
+window.clearAll = () => {
+  if (!confirm('Clear ALL data? This cannot be undone.')) return;
+  Object.values(STORAGE).forEach(k => ls(k,''));
+  holdings = []; watchlist = []; roi = []; prices = {};
+  toast('All data cleared');
+  render();
+};
+
+
+// ── Portfolio Intelligence ────────────────────────────────────────────────
+function renderIntel(app) {
+  const intel = getIntel();
+  const actionColor = a => a==='pass'?'#dc2626':a==='watch'?'#f59e0b':a==='hold'?'#16a34a':'#2563eb';
+  const actionLabel = a => a==='pass'?'⛔ Pass':a==='watch'?'👁 Watch':a==='hold'?'✅ Hold':'📋 Note';
+  const actionOrder = {hold:0, note:1, watch:2, pass:3};
+  const tickers = Object.keys(intel).sort((a,b) => {
+    const ao = actionOrder[intel[a].action]??1;
+    const bo = actionOrder[intel[b].action]??1;
+    return ao !== bo ? ao - bo : a.localeCompare(b);
+  });
+
+  app.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:18px;font-weight:800">📋 Portfolio Intelligence</div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px">Session history, exit reasons, and trade rules seeded from your conversations</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="addIntelEntry()">+ Add Entry</button>
+    </div>
+
+    <div id="intel-add-form" style="display:none" class="card" style="margin-bottom:16px;border-color:#2563eb">
+      <div style="display:grid;grid-template-columns:100px 120px 1fr;gap:10px;margin-bottom:10px">
+        <div><label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Ticker</label>
+          <input id="intel-ticker" placeholder="NVDA" style="text-transform:uppercase"></div>
+        <div><label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Action</label>
+          <select id="intel-action">
+            <option value="pass">⛔ Pass</option>
+            <option value="watch">👁 Watch</option>
+            <option value="hold">✅ Hold</option>
+            <option value="note">📋 Note</option>
+          </select></div>
+        <div><label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Reason</label>
+          <input id="intel-reason" placeholder="Why this action..."></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="saveIntelEntry()">Save</button>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('intel-add-form').style.display='none'">Cancel</button>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${tickers.map(t => {
+        const e = intel[t];
+        const col = actionColor(e.action);
+        return `<div class="card" style="border-left:4px solid ${col};padding:12px 16px">
+          <div style="display:flex;justify-content:space-between;align-items:start;gap:10px">
+            <div style="display:flex;align-items:center;gap:12px;flex:1">
+              <div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:16px;font-weight:800">${t}</span>
+                  <span style="font-size:11px;font-weight:700;color:${col};background:${col}18;padding:2px 8px;border-radius:10px">${actionLabel(e.action)}</span>
+                  ${(e.tags||[]).map(tag=>`<span style="font-size:10px;color:#94a3b8;background:#f1f5f9;padding:1px 6px;border-radius:8px">${tag}</span>`).join('')}
+                </div>
+                <div style="font-size:12px;color:#475569;margin-top:4px;line-height:1.5">${e.reason}</div>
+                ${e.exitDate?`<div style="font-size:10px;color:#94a3b8;margin-top:2px">Exited: ${e.exitDate}</div>`:''}
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <button onclick="editIntelEntry('${t}')"
+                style="border:none;background:#f1f5f9;color:#475569;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px">Edit</button>
+              <button onclick="deleteIntelEntry('${t}')"
+                style="border:none;background:#fee2e2;color:#dc2626;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px">Del</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  window.addIntelEntry = () => {
+    document.getElementById('intel-add-form').style.display = 'block';
+    document.getElementById('intel-ticker').focus();
+  };
+  window.saveIntelEntry = () => {
+    const ticker = (document.getElementById('intel-ticker')?.value||'').toUpperCase().trim();
+    const action = document.getElementById('intel-action')?.value||'note';
+    const reason = document.getElementById('intel-reason')?.value||'';
+    if (!ticker || !reason) return;
+    const d = getIntel();
+    d[ticker] = {action, reason, addedDate: new Date().toISOString().split('T')[0], tags:[]};
+    saveIntel(d);
+    renderIntel(app);
+  };
+  window.editIntelEntry = ticker => {
+    const e = getIntel()[ticker];
+    document.getElementById('intel-add-form').style.display = 'block';
+    document.getElementById('intel-ticker').value = ticker;
+    document.getElementById('intel-action').value = e.action||'note';
+    document.getElementById('intel-reason').value = e.reason||'';
+    document.getElementById('intel-ticker').focus();
+  };
+  window.deleteIntelEntry = ticker => {
+    const d = getIntel();
+    delete d[ticker];
+    saveIntel(d);
+    renderIntel(app);
+  };
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function renderSettings(app) {
+  const s = getSettings();
+  app.innerHTML = `
+    <div style="max-width:600px">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">API Keys</div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Finnhub API Key (free at finnhub.io)</label>
+          <div style="display:flex;gap:8px">
+            <input id="set-finnhub" type="password" value="${s.finnhubKey||''}" placeholder="Your Finnhub key..." style="flex:1">
+            <button class="btn btn-primary btn-sm" onclick="testFinnhub()">Test</button>
+          </div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:4px">Used for live prices in Watchlist. Free tier: 60 calls/minute.</div>
+        </div>
+        <div style="margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="set-claude" ${s.claudeMode?'checked':''} style="width:auto">
+            <span style="font-size:13px">Enable AI recommendations (Claude API)</span>
+          </label>
+          <div style="font-size:11px;color:#94a3b8;margin-top:4px">Adds AI narrative to each recommendation card. Uses Claude Sonnet.</div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettingsForm()">Save Settings</button>
+        <div id="set-result" style="font-size:12px;color:#16a34a;margin-top:8px"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">About</div>
+        <div style="font-size:13px;color:#64748b;line-height:1.6">
+          Portfolio Intelligence v${VERSION}<br>
+          Built for aggressive-growth long-horizon investing.<br>
+          SA + Schwab + Ally → unified view with AI-powered recommendations.
+        </div>
+      </div>
+    </div>`;
+}
+
+window.saveSettingsForm = () => {
+  const s = {
+    finnhubKey: document.getElementById('set-finnhub')?.value||'',
+    claudeMode: document.getElementById('set-claude')?.checked||false,
+  };
+  saveSettings(s);
+  document.getElementById('set-result').textContent = '✅ Saved';
+  toast('Settings saved');
+};
+
+window.testFinnhub = async () => {
+  const key = document.getElementById('set-finnhub')?.value||'';
+  if (!key) { toast('Enter a key first'); return; }
+  const el = document.getElementById('set-result');
+  el.textContent = 'Testing...';
+  try {
+    const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=AAPL&token=${key}`);
+    const d = await r.json();
+    if (d.c) { el.textContent = '✅ Valid key — AAPL: $'+d.c.toFixed(2); el.style.color='#16a34a'; }
+    else { el.textContent = '❌ Invalid key'; el.style.color='#dc2626'; }
+  } catch(e) { el.textContent = '❌ Error: '+e.message; el.style.color='#dc2626'; }
+};
+
+
+
+// ── Account split editor (ported from v1) ─────────────────────────────────
+function setSingleAcct(ticker,acct,shares){
+  const d=getAccts();
+  if(acct==="—")delete d[ticker];
+  else d[ticker]=[{account:acct,shares:shares}];
+  saveAccts(d);render();
+}
+
+window.openSplitEditor=(ticker,totalShares)=>{
+  const splits=getAccts();
+  const current=splits[ticker]||[];
+  const tagged=current.reduce((s,sp)=>s+(+sp.shares),0);
+  const remaining=totalShares-tagged;
+  const accounts=["Schwab","Ally","Vanguard","Other"];
+  const modal=document.createElement("div");
+  modal.id="split-modal";
+  modal.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center";
+  modal.innerHTML=`
+    <div style="background:#fff;border-radius:14px;padding:24px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px">${ticker} — Account Split</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:16px">Total: ${totalShares} shares · Tagged: ${tagged} · Remaining: ${remaining}</div>
+      <div id="split-rows">
+        ${current.map((sp,i)=>`
+          <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+            <select id="sp-acct-${i}" style="flex:1;padding:7px;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;background:#fff">
+              ${accounts.map(a=>`<option value="${a}"${sp.account===a?" selected":""}>${a}</option>`).join("")}
+            </select>
+            <input type="number" id="sp-shares-${i}" value="${sp.shares}" min="1" max="${totalShares}"
+              style="width:80px;padding:7px;border:1px solid #e2e8f0;border-radius:7px;font-size:12px">
+            <span style="font-size:11px;color:#94a3b8">sh</span>
+          </div>`).join("")}
+        <button onclick="addSplitRow(${totalShares})" style="width:100%;padding:7px;border:1px dashed #cbd5e1;border-radius:7px;font-size:12px;color:#64748b;background:none;cursor:pointer;margin-bottom:8px">+ Add account</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="saveSplitEditor('${ticker}',${totalShares})" class="btn btn-p" style="flex:1;padding:9px">Save</button>
+        <button onclick="document.getElementById('split-modal')?.remove()" class="btn btn-s" style="padding:9px 16px">Cancel</button>
+        ${current.length?`<button onclick="clearSplit('${ticker}')" style="padding:9px 12px;border:none;border-radius:8px;background:#fee2e2;color:#dc2626;cursor:pointer;font-size:12px">Clear</button>`:""}
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener("click",e=>{if(e.target===modal)modal.remove();});
+};
+
+window.addSplitRow=(totalShares)=>{
+  const rows=document.getElementById("split-rows");if(!rows)return;
+  const i=rows.querySelectorAll("input[type=number]").length;
+  const accounts=["Schwab","Ally","Vanguard","Other"];
+  const div=document.createElement("div");
+  div.style.cssText="display:flex;gap:8px;margin-bottom:8px;align-items:center";
+  div.innerHTML=`
+    <select id="sp-acct-${i}" style="flex:1;padding:7px;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;background:#fff">
+      ${accounts.map(a=>`<option>${a}</option>`).join("")}
+    </select>
+    <input type="number" id="sp-shares-${i}" placeholder="shares" min="1" max="${totalShares}"
+      style="width:72px;padding:7px;border:1px solid #e2e8f0;border-radius:7px;font-size:12px"
+      oninput="updateSplitRemaining(${totalShares})">
+    <button onclick="useRemaining(${totalShares},${i})" title="Use all remaining shares"
+      style="padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:10px;background:#f8fafc;cursor:pointer;white-space:nowrap">All</button>`;
+  rows.insertBefore(div, rows.lastElementChild);
+};
+
+window.useRemaining=(totalShares,idx)=>{
+  const inputs=[...document.getElementById("split-rows").querySelectorAll("input[type=number]")];
+  const used=inputs.reduce((s,inp,i)=>i!==idx?s+(parseFloat(inp.value)||0):s,0);
+  const rem=totalShares-used;
+  const inp=document.getElementById("sp-shares-"+idx);
+  if(inp&&rem>0)inp.value=rem;
+  updateSplitRemaining(totalShares);
+};
+
+window.updateSplitRemaining=(totalShares)=>{
+  const inputs=document.getElementById("split-rows")?.querySelectorAll("input[type=number]")||[];
+  const used=[...inputs].reduce((s,inp)=>s+(parseFloat(inp.value)||0),0);
+  const rem=totalShares-used;
+  const errEl=document.getElementById("split-err");
+  if(errEl)errEl.textContent=used>0?(rem>=0?"Remaining: "+rem+" shares":(used-totalShares)+" shares over limit"):"";
+  if(errEl)errEl.style.color=rem<0?"#dc2626":"#16a34a";
+};
+
+window.saveSplitEditor=(ticker,totalShares)=>{
+  const inputs=document.getElementById("split-rows")?.querySelectorAll("input[type=number]")||[];
+  const newSplits=[];let total=0;
+  inputs.forEach((inp,i)=>{
+    const shares=parseFloat(inp.value||0);
+    const acct=document.getElementById(`sp-acct-${i}`)?.value||"Schwab";
+    if(shares>0){newSplits.push({account:acct,shares});total+=shares;}
+  });
+  const errEl=document.getElementById("split-err");
+  if(total>totalShares){if(errEl)errEl.textContent=`Total ${total} exceeds ${totalShares} shares`;return;}
+  const d=getAccts();
+  if(newSplits.length)d[ticker]=newSplits;
+  else delete d[ticker];
+  saveAccts(d);
+  document.getElementById("split-modal")?.remove();
+  render();
+};
+
+window.removeSplit=(ticker,idx)=>{
+  const d=getAccts();
+  if(d[ticker]){d[ticker].splice(idx,1);if(!d[ticker].length)delete d[ticker];}
+  saveAccts(d);render();
+};
+
+window.clearSplit=(ticker)=>{
+  const d=getAccts();delete d[ticker];saveAccts(d);
+  document.getElementById("split-modal")?.remove();
+  render();
+};
+
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(()=>{
+  // Load persisted holdings
+  const saved = getJSON(STORAGE.HOLDINGS, []);
+  if (saved.length) holdings = saved;
+
+  // If no holdings in storage, try re-parsing from saved raw pastes
+  if (!holdings.length) {
+    const saRaw = ls(STORAGE.SA_RAW)||'';
+    const schwabRaw = ls(STORAGE.SCHWAB_RAW)||'';
+    if (saRaw.trim()) {
+      const raw = saRaw.replace(/^\uFEFF/,'');
+      let rows = [];
+      if (raw.includes('Smart Score') || raw.includes('Analyst Consensus')) rows = parseTR(raw);
+      else if (raw.includes('\t') && raw.includes('Qty')) rows = parseSchwabAsHoldings(raw);
+      else rows = parseSA(raw);
+      if (rows.length) { holdings = rows; setJSON(STORAGE.HOLDINGS, rows); }
+    }
+    if (!holdings.length && schwabRaw.trim()) {
+      const rows = parseSchwabAsHoldings(schwabRaw);
+      if (rows.length) { holdings = rows; setJSON(STORAGE.HOLDINGS, rows); }
+    }
+  }
+
+  watchlist = getWatchlist();
+  roi = getROI();
+  render();
+})();
+</script>
+</body>
+</html>
